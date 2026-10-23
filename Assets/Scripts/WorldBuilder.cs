@@ -160,7 +160,7 @@ namespace SunsetState
                 hill.GetComponent<Renderer>().sharedMaterial = Mat(new Color(.61f,.53f,.38f));
             }
             ConvenienceStores.Build(root);StateBank.Build(root);ViceCityIsland.Build(game,root);
-            FactionDistricts.Build(game,root);
+            FactionDistricts.Build(game,root);BlackMarket.Build(root);
             RoadServiceObject.Build(root);
             BuildAirport(root);
             BuildPalms(root);

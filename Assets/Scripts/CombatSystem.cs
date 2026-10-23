@@ -251,10 +251,10 @@ namespace SunsetState
             CharacterModels.Create(obj.transform,appearanceRole,new Color(.65f,.22f,.18f));
             var gun=WorldBuilder.Box("NPC rifle",Vector3.zero,new Vector3(.12f,.15f,.7f),new Color(.1f,.12f,.13f),null,false);gun.transform.SetParent(obj.transform,false);gun.transform.localPosition=new Vector3(.4f,1.25f,.5f);
             obj.AddComponent<NpcGroundMotor>().Initialize();agent.motor.Move(Vector3.zero);Physics.SyncTransforms();
-            game.Enemies.Add(agent);agent.shotAt=Time.time+2;return agent;
+            game.Enemies.Add(agent);agent.shotAt=Time.time+2*game.Difficulty.Reaction;return agent;
         }
         public static HostileAgent AttachToPatrol(GameRoot game,VehicleMotor car)
-        {var agent=car.gameObject.AddComponent<HostileAgent>();agent.game=game;agent.VehicleUnit=true;agent.Health=180;agent.shotAt=Time.time+4;game.Enemies.Add(agent);return agent;}
+        {var agent=car.gameObject.AddComponent<HostileAgent>();agent.game=game;agent.VehicleUnit=true;agent.Health=180;agent.shotAt=Time.time+4*game.Difficulty.Reaction;game.Enemies.Add(agent);return agent;}
         void Update()
         {
             if(!game || !game.Playing || game.Panel!="" || Neutralized)return;
@@ -280,11 +280,11 @@ namespace SunsetState
             }
             if(Suspect)return;
             if(distance>70 || Time.time<shotAt || !HasLineOfSight(target+Vector3.up))return;
-            shotAt=Time.time+Random.Range(1.1f,2.1f);
+            shotAt=Time.time+Random.Range(1.1f,2.1f)*game.Difficulty.ShotInterval;
             var muzzle=transform.position+Vector3.up*1.4f+transform.forward*1.3f;
             game.DrawShot(muzzle,target+Vector3.up,new Color(1,.35f,.15f));
             if(gunAudio && gunAudio.clip)gunAudio.PlayOneShot(gunAudio.clip);
-            if(Random.value>.3f)game.DamagePlayer(VehicleUnit?5:AttackDamage,transform.position);
+            if(Random.value<game.Difficulty.HitChance)game.ApplyEnemyHit(VehicleUnit?5:AttackDamage,transform.position);
         }
         bool HasLineOfSight(Vector3 target)
         {

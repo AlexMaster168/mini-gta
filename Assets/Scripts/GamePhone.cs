@@ -32,17 +32,20 @@ namespace SunsetState
             {
                 if(Button(new Rect(left,210,510,50),"GPS · ТЕКУЩИЙ ЭТАП ЗАДАНИЯ")){gpsDestination=null;Toggle("map");}
                 if(Button(new Rect(left+530,210,510,50),"СБРОСИТЬ ЛИЧНУЮ МЕТКУ")){gpsDestination=null;Notify("Личная GPS-метка убрана.");}
-                phoneScroll=GUI.BeginScrollView(new Rect(left,280,1060,h-325),phoneScroll,new Rect(0,0,1030,(Roles.Length+3)*53));
+                phoneScroll=GUI.BeginScrollView(new Rect(left,280,1060,h-325),phoneScroll,new Rect(0,0,1030,(Roles.Length+4)*53));
                 for(int i=0;i<Roles.Length;i++){int role=i;if(Button(new Rect(0,i*53,1010,46),Roles[i].Name+" · отделение"))SetGps(RoleHome(role),Roles[role].Name);}
                 float y=Roles.Length*53;if(Button(new Rect(0,y,1010,46),"АЭРОПОРТ · VISA / VICE CITY"))SetGps(OnVice?ViceCityIsland.IslandAirport:ViceCityIsland.Airport,"Аэропорт");
-                if(Button(new Rect(0,y+53,1010,46),"ГОСУДАРСТВЕННЫЙ БАНК"))SetGps(StateBank.Entrance.Door,"Банк");if(Button(new Rect(0,y+106,1010,46),"МАГАЗИН 24/7"))SetGps(ConvenienceStores.Locations[0]+Vector3.back*15,"24/7");GUI.EndScrollView();
+                if(Button(new Rect(0,y+53,1010,46),"ГОСУДАРСТВЕННЫЙ БАНК"))SetGps(StateBank.Entrance.Door,"Банк");if(Button(new Rect(0,y+106,1010,46),"МАГАЗИН 24/7"))SetGps(ConvenienceStores.Locations[0]+Vector3.back*15,"24/7");if(Button(new Rect(0,y+159,1010,46),"ЧЁРНЫЙ РЫНОК · ГУРРАМ / СНЯТЬ РОЗЫСК"))SetGps(BlackMarket.Points[OnVice?1:0],"Чёрный рынок · Гуррам");GUI.EndScrollView();
             }
             if(phoneTab==3)
             {
-                Label(left,215,1000,45,"Общая громкость",body);AudioListener.volume=GUI.HorizontalSlider(new Rect(left,275,1000,30),AudioListener.volume,0,1);
-                Label(left,330,1000,45,"Громкость радио",body);StateRadio.Volume=GUI.HorizontalSlider(new Rect(left,385,1000,30),StateRadio.Volume,0,.6f);
+                Label(left,210,1000,35,"Общая громкость",body);AudioListener.volume=GUI.HorizontalSlider(new Rect(left,250,1000,25),AudioListener.volume,0,1);
+                Label(left,285,1000,35,"Двигатель · автоматически тише при включённом радио",body);VehicleAudio.EngineVolume=GUI.HorizontalSlider(new Rect(left,325,1000,25),VehicleAudio.EngineVolume,0,.3f);
+                Label(left,360,1000,35,"Громкость радио",body);StateRadio.Volume=GUI.HorizontalSlider(new Rect(left,400,1000,25),StateRadio.Volume,0,.6f);
                 if(Button(new Rect(left,450,1040,60),"РАДИО · ВКЛЮЧИТЬ / ВЫКЛЮЧИТЬ"))StateRadio.Instance?.PhoneRadio(-1);
-                if(Button(new Rect(left,530,505,60),"MIDNIGHT DRIVE"))StateRadio.Instance?.PhoneRadio(0);if(Button(new Rect(left+525,530,515,60),"POLICE LOOP"))StateRadio.Instance?.PhoneRadio(1);
+                phoneScroll=GUI.BeginScrollView(new Rect(left,530,1060,h-585),phoneScroll,new Rect(0,0,1030,StateRadio.TrackNames.Length*51));
+                for(int i=0;i<StateRadio.TrackNames.Length;i++)if(Button(new Rect(0,i*51,1010,44),(i+1)+" · "+StateRadio.TrackNames[i]))StateRadio.Instance?.PhoneRadio(i);
+                GUI.EndScrollView();
             }
             if(phoneTab==4)
             {

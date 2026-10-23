@@ -28,6 +28,8 @@ namespace SunsetState
             yield return CheckNewSystems(value=>success &= value);
             yield return CheckWaterAndTraffic(value=>success &= value);
             yield return CheckReadability(value=>success &= value);
+            yield return CheckBlackMarket(value=>success &= value);
+            try{CheckDifficulty();CheckRadioLibrary();}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
             yield return CheckDriving(value=>success &= value);
             Debug.Log(success?"SUNSET_SMOKE_OK: 18 roles, 180 jobs, 900 story chapters with branches, fleet permissions, prison escape, save, combat, services, helicopter, suspension, acceleration, braking, reverse, steering, handbrake":"SUNSET_SMOKE_FAILED");
             Application.Quit(success?0:1);

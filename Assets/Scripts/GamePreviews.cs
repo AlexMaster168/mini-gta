@@ -59,6 +59,8 @@ namespace SunsetState
             SelectRole(0);Panel="";Time.timeScale=1;Player.Teleport(new Vector3(3300,2,-1700));VehicleMotor featureCar=null;
             for(int i=0;i<3;i++){var car=WorldBuilder.SpawnCar(this,new Vector3(3300+i*5,2,-1700),i==0?"Ferrari · стилизация":i==1?"Tesla · стилизация":"BMW · стилизация",new Color(.7f,.2f,.15f),false,0,i==0?VehicleKind.Supercar:i==1?VehicleKind.Electric:VehicleKind.Sport);if(i==1)featureCar=car;}
             yield return new WaitForSecondsRealtime(.7f);camera.transform.position=featureCar.transform.position+new Vector3(9,5,9);camera.transform.LookAt(featureCar.transform.position+Vector3.up*.8f);camera.fieldOfView=55;yield return Snapshot("ModernCars");
+            SelectRole(0);Wanted=0;Panel="";Time.timeScale=1;Player.Teleport(BlackMarket.Points[0]+new Vector3(8,0,-8));
+            camera.transform.position=BlackMarket.Points[0]+new Vector3(9,4,-12);camera.transform.LookAt(BlackMarket.Points[0]+Vector3.up*1.5f);camera.fieldOfView=55;yield return new WaitForSecondsRealtime(.3f);yield return Snapshot("BlackMarket");
             Debug.Log("SUNSET_PREVIEWS_OK");
         }
     }

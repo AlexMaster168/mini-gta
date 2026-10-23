@@ -4,6 +4,9 @@ namespace SunsetState
 {
     public sealed class VehicleAudio:MonoBehaviour
     {
+        public static float EngineVolume=.12f;
+        public static float MixedEngineVolume(bool driven,bool radioPlaying,float musicVolume)
+        {float level=driven?EngineVolume:Mathf.Min(.035f,EngineVolume*.3f);return radioPlaying?Mathf.Min(level,Mathf.Max(0,musicVolume)*(driven?.25f:.15f)):level;}
         VehicleMotor car;AudioSource engine,emergency,horn;bool alarm;static AudioClip hornClip;
         public void Initialize(VehicleMotor vehicle)
         {
@@ -20,7 +23,7 @@ namespace SunsetState
             bool active=game.Playing && game.Panel=="";
             bool near=Vector3.Distance(game.Player.Position,transform.position)<100;
             bool running=active && near && (car.Driver || car.Traffic || GetComponent<HostileAgent>());
-            if(running && engine.clip){if(!engine.isPlaying)engine.Play();engine.pitch=car.Flying?1:Mathf.Clamp(.7f+car.RPM/7500,.6f,1.8f);engine.volume=car.Driver?.3f:.07f;}else engine.Pause();
+            if(running && engine.clip){if(!engine.isPlaying)engine.Play();engine.pitch=car.Flying?1:Mathf.Clamp(.7f+car.RPM/7500,.6f,1.8f);engine.volume=MixedEngineVolume(car.Driver,StateRadio.IsAudible,StateRadio.Volume);}else engine.Pause();
             bool sound=active && near && (car.EmergencyEnabled || alarm);
             if(sound && emergency.clip){if(!emergency.isPlaying)emergency.Play();emergency.volume=.35f;emergency.pitch=alarm?1.35f:1;}else emergency.Pause();
             if(active && car.Driver && Input.GetKeyDown(KeyCode.B))horn.PlayOneShot(hornClip,.5f);
@@ -30,22 +33,29 @@ namespace SunsetState
     public sealed class StateRadio:MonoBehaviour
     {
         public static StateRadio Instance;
-        public void PhoneRadio(int index){if(index<0)enabledRadio=!enabledRadio;else{enabledRadio=true;station=Mathf.Clamp(index,0,tracks.Length-1);radio.clip=tracks[station];}if(enabledRadio&&radio.clip)radio.Play();else radio.Pause();}
-        AudioSource radio;AudioClip[] tracks;string[] names={"Midnight Drive · congusbongus","Police Loop · obscure music"};int station;bool enabledRadio=true;
-        public static string Current="";public static float Volume=.16f;
-        void Start(){Instance=this;radio=gameObject.AddComponent<AudioSource>();radio.playOnAwake=false;radio.loop=true;tracks=new[]{Resources.Load<AudioClip>("Audio/MidnightDrive"),Resources.Load<AudioClip>("Audio/PoliceLoop")};radio.clip=tracks[0];}
+        public static readonly string[] TrackNames={"Midnight Drive · congusbongus","Police Loop · obscure music","Doomed · Alexander Ehlers","Flags · Alexander Ehlers","Great Mission · Alexander Ehlers","Spacetime · Alexander Ehlers","Twists · Alexander Ehlers","Waking the Devil · Alexander Ehlers","Warped · Alexander Ehlers"};
+        static readonly string[] TrackPaths={"Audio/MidnightDrive","Audio/PoliceLoop","Audio/Radio/Doomed","Audio/Radio/Flags","Audio/Radio/Greatmission","Audio/Radio/Spacetime","Audio/Radio/Twists","Audio/Radio/Wakingthedevil","Audio/Radio/Warped"};
+        public int TrackCount=>tracks.Length;
+        public AudioClip SelectedClip=>radio.clip;
+        public void PhoneRadio(int index){phoneListening=true;if(index<0)enabledRadio=!enabledRadio;else{enabledRadio=true;SelectTrack(index);}}
+        void SelectTrack(int index){station=Mathf.Clamp(index,0,tracks.Length-1);radio.Stop();radio.clip=tracks[station];started=false;paused=false;}
+        public void NextTrack(){SelectTrack((station+1)%tracks.Length);}
+        AudioSource radio;AudioClip[] tracks;int station;bool enabledRadio=true,phoneListening,started,paused;
+        public static bool IsAudible=>Instance&&Instance.radio&&Instance.radio.isPlaying;
+        public static string Current="";public static float Volume=.24f;
+        void Start(){Instance=this;radio=gameObject.AddComponent<AudioSource>();radio.playOnAwake=false;radio.loop=false;tracks=new AudioClip[TrackPaths.Length];for(int i=0;i<tracks.Length;i++)tracks[i]=Resources.Load<AudioClip>(TrackPaths[i]);radio.clip=tracks[0];}
         void Update()
         {
             var game=GameRoot.Instance;if(!game || !radio)return;
             if(game.Playing && game.Panel=="")
             {
-                if(Input.GetKeyDown(KeyCode.T)){enabledRadio=!enabledRadio;game.Notify(enabledRadio?"Sunset Radio включено · Y — следующая станция":"Sunset Radio выключено");}
-                if(Input.GetKeyDown(KeyCode.Y)){station=(station+1)%tracks.Length;radio.clip=tracks[station];if(radio.clip)radio.Play();game.Notify(names[station]);}
+                if(Input.GetKeyDown(KeyCode.T)){phoneListening=true;enabledRadio=!enabledRadio;game.Notify(enabledRadio?"Sunset Radio включено · Y — следующий трек":"Sunset Radio выключено");}
+                if(Input.GetKeyDown(KeyCode.Y)){NextTrack();game.Notify(TrackNames[station]);}
                 if(Input.GetKeyDown(KeyCode.Minus))Volume=Mathf.Max(0,Volume-.04f);
                 if(Input.GetKeyDown(KeyCode.Equals))Volume=Mathf.Min(.6f,Volume+.04f);
             }
-            bool play=enabledRadio && (!game.Playing || game.Player.Vehicle);
-            if(play && radio.clip){if(!radio.isPlaying)radio.Play();radio.volume=Volume;Current=names[station];}else{radio.Pause();Current="";}
+            bool play=enabledRadio && (!game.Playing || game.Panel=="" && (game.Player.Vehicle||phoneListening));
+            if(play && radio.clip){if(paused){radio.UnPause();paused=false;}if(started&&!radio.isPlaying)NextTrack();if(!started){radio.Play();started=true;}radio.volume=Volume;Current=TrackNames[station];}else{if(started&&!paused){radio.Pause();paused=true;}Current="";}
         }
     }
 }
