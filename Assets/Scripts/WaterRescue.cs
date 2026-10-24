@@ -50,7 +50,7 @@ namespace SunsetState
             if(water==null){Notify("Рядом нет затонувшего транспорта или водоёма.");return;}
             if(tow&&car&&Money<300){Notify("Подъём транспорта стоит $300. Спасение человека бесплатно.");return;}
             Player.Teleport(water.Shore);breath=15;
-            if(tow&&car){Vector3 safe=SpawnSafety.VehiclePosition(water.Shore+Vector3.forward*12,car.Dimensions,0,car);car.transform.SetPositionAndRotation(safe+Vector3.up*.4f,Quaternion.identity);car.Body.position=car.transform.position;car.Body.rotation=car.transform.rotation;car.Body.linearVelocity=Vector3.zero;car.Body.angularVelocity=Vector3.zero;car.Body.constraints&=~RigidbodyConstraints.FreezePositionY;if(car.Durability>0)car.Durability=Mathf.Max(35,car.Durability);Money-=300;submergedVehicle=null;}
+            if(tow&&car){Vector3 safe=SpawnSafety.VehiclePosition(water.Shore+Vector3.forward*12,car.Dimensions,0,car);car.transform.SetPositionAndRotation(safe+Vector3.up*.4f,Quaternion.identity);car.Body.position=car.transform.position;car.Body.rotation=car.transform.rotation;car.Body.linearVelocity=Vector3.zero;car.Body.angularVelocity=Vector3.zero;car.Body.constraints&=~RigidbodyConstraints.FreezePositionY;if(car.Durability>0)car.Durability=Mathf.Max(car.MaxDurability*.35f,car.Durability);Money-=300;submergedVehicle=null;}
             Panel="";Time.timeScale=1;SetCursor(true);Notify(tow?"Спасатели эвакуировали тебя и подняли транспорт на берег. $300.":"Спасатели доставили тебя на берег. Машина остаётся в воде.");Save();
         }
         void DrawWaterRescue(float left,float h)

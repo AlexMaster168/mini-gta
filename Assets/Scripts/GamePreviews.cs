@@ -61,6 +61,14 @@ namespace SunsetState
             yield return new WaitForSecondsRealtime(.7f);camera.transform.position=featureCar.transform.position+new Vector3(9,5,9);camera.transform.LookAt(featureCar.transform.position+Vector3.up*.8f);camera.fieldOfView=55;yield return Snapshot("ModernCars");
             SelectRole(0);Wanted=0;Panel="";Time.timeScale=1;Player.Teleport(BlackMarket.Points[0]+new Vector3(8,0,-8));
             camera.transform.position=BlackMarket.Points[0]+new Vector3(9,4,-12);camera.transform.LookAt(BlackMarket.Points[0]+Vector3.up*1.5f);camera.fieldOfView=55;yield return new WaitForSecondsRealtime(.3f);yield return Snapshot("BlackMarket");
+            SelectRole(0);Panel="";Time.timeScale=1;Player.Teleport(new Vector3(3350,2,-2300));
+            var damaged=WorldBuilder.SpawnCar(this,new Vector3(3400,2,-2300),"Damage showcase",new Color(.65f,.2f,.15f),false,0);damaged.Durability=damaged.MaxDurability*.3f;damaged.GetComponent<VehicleBodyDamage>().Refresh();
+            camera.transform.position=damaged.transform.position+new Vector3(-5,2.7f,5);camera.transform.LookAt(damaged.transform.position+Vector3.up);camera.fieldOfView=50;yield return new WaitForSecondsRealtime(.5f);yield return Snapshot("VehicleDamage");
+            SelectRole(2);Panel="";Time.timeScale=1;Player.Teleport(new Vector3(3300,2,-2400));WeaponIndex=MinigunIndex;ServiceSelected=false;
+            camera.transform.position=Player.Position+new Vector3(2,1.5f,2.5f);camera.transform.LookAt(Player.Position+Vector3.up);camera.fieldOfView=43;yield return new WaitForSecondsRealtime(1.2f);yield return Snapshot("Minigun");
+            SelectRole(0);Wanted=0;Panel="";Time.timeScale=1;Player.Teleport(ShootingRanges.Terminals[0]+Vector3.back*4);
+            camera.transform.position=ShootingRanges.Centers[0]+new Vector3(19,13,-28);camera.transform.LookAt(ShootingRanges.Centers[0]+Vector3.forward*3);camera.fieldOfView=58;yield return new WaitForSecondsRealtime(.5f);yield return Snapshot("PublicRange");
+            SelectRole(3);Panel="";Time.timeScale=1;camera.transform.position=ShootingRanges.Centers[1]+new Vector3(19,13,-28);camera.transform.LookAt(ShootingRanges.Centers[1]+Vector3.forward*3);yield return new WaitForSecondsRealtime(.5f);yield return Snapshot("ArmyRange");
             Debug.Log("SUNSET_PREVIEWS_OK");
         }
     }

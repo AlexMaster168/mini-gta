@@ -51,6 +51,7 @@ namespace SunsetState
             }
             foreach(var shop in ConvenienceStores.Locations){Vector2 p=MapPoint(rect,shop,full);if(rect.Contains(p)){RectBox(new Rect(p.x-5,p.y-5,10,10),new Color(.1f,.95f,.48f));if(full && mapFocused)MapCaption(rect,p+new Vector2(8,-10),"24/7");}}
             foreach(var market in BlackMarket.Points){var p=MapPoint(rect,market,full);if(rect.Contains(p)){RectBox(new Rect(p.x-5,p.y-5,10,10),new Color(.8f,.35f,1));if(full)MapCaption(rect,p+new Vector2(8,-12),mapFocused?"Гуррам · чёрный рынок":"ЧР");}}
+            for(int i=0;i<ShootingRanges.Terminals.Length;i++){var point=MapPoint(rect,ShootingRanges.Terminals[i],full);if(rect.Contains(point)){RectBox(new Rect(point.x-5,point.y-5,10,10),new Color(.25f,.65f,1));if(full)MapCaption(rect,point+new Vector2(8,-12),i==0?"Тир":"Армейский тир");}}
             var goal=MapGoal;if(goal.HasValue)
             {
                 if(Time.unscaledTime>nextNavigation || (navigationGoal-goal.Value).sqrMagnitude>1){navigationGoal=goal.Value;navigation=RoadNavigation.Route(SavePosition,goal.Value);nextNavigation=Time.unscaledTime+1;}

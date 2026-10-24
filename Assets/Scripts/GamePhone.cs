@@ -32,10 +32,10 @@ namespace SunsetState
             {
                 if(Button(new Rect(left,210,510,50),"GPS · ТЕКУЩИЙ ЭТАП ЗАДАНИЯ")){gpsDestination=null;Toggle("map");}
                 if(Button(new Rect(left+530,210,510,50),"СБРОСИТЬ ЛИЧНУЮ МЕТКУ")){gpsDestination=null;Notify("Личная GPS-метка убрана.");}
-                phoneScroll=GUI.BeginScrollView(new Rect(left,280,1060,h-325),phoneScroll,new Rect(0,0,1030,(Roles.Length+4)*53));
+                phoneScroll=GUI.BeginScrollView(new Rect(left,280,1060,h-325),phoneScroll,new Rect(0,0,1030,(Roles.Length+6)*53));
                 for(int i=0;i<Roles.Length;i++){int role=i;if(Button(new Rect(0,i*53,1010,46),Roles[i].Name+" · отделение"))SetGps(RoleHome(role),Roles[role].Name);}
                 float y=Roles.Length*53;if(Button(new Rect(0,y,1010,46),"АЭРОПОРТ · VISA / VICE CITY"))SetGps(OnVice?ViceCityIsland.IslandAirport:ViceCityIsland.Airport,"Аэропорт");
-                if(Button(new Rect(0,y+53,1010,46),"ГОСУДАРСТВЕННЫЙ БАНК"))SetGps(StateBank.Entrance.Door,"Банк");if(Button(new Rect(0,y+106,1010,46),"МАГАЗИН 24/7"))SetGps(ConvenienceStores.Locations[0]+Vector3.back*15,"24/7");if(Button(new Rect(0,y+159,1010,46),"ЧЁРНЫЙ РЫНОК · ГУРРАМ / СНЯТЬ РОЗЫСК"))SetGps(BlackMarket.Points[OnVice?1:0],"Чёрный рынок · Гуррам");GUI.EndScrollView();
+                if(Button(new Rect(0,y+53,1010,46),"ГОСУДАРСТВЕННЫЙ БАНК"))SetGps(StateBank.Entrance.Door,"Банк");if(Button(new Rect(0,y+106,1010,46),"МАГАЗИН 24/7"))SetGps(ConvenienceStores.Locations[0]+Vector3.back*15,"24/7");if(Button(new Rect(0,y+159,1010,46),"ЧЁРНЫЙ РЫНОК · ГУРРАМ / СНЯТЬ РОЗЫСК"))SetGps(BlackMarket.Points[OnVice?1:0],"Чёрный рынок · Гуррам");if(Button(new Rect(0,y+212,1010,46),"ОБЩИЙ ТИР · ТРЕНИРОВКА СТРЕЛЬБЫ"))SetGps(ShootingRanges.Terminals[0],"Общий тир");if(Button(new Rect(0,y+265,1010,46),"АРМЕЙСКИЙ ТИР"))SetGps(ShootingRanges.Terminals[1],"Армейский тир");GUI.EndScrollView();
             }
             if(phoneTab==3)
             {

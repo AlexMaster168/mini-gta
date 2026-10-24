@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SunsetState
 {
-    [Serializable] public sealed class SaveData { public int Difficulty,DifficultyVersion; public int Role,Money,Completed,Wanted,Contraband,Board,OwnedGuns,Licenses,Laws,Bank;public int[] Purchases,LoadedAmmo,ReserveAmmo; public int[] Stories,Choices,Career,Skins,Accessories,Shields,Courts; public bool[] Females;public bool Escaped,CasualClothes; public float X,Z,Health,Hour,Armor,Visa; }
+    [Serializable] public sealed class SaveData { public int ShootingXP,Difficulty,DifficultyVersion; public int Role,Money,Completed,Wanted,Contraband,Board,OwnedGuns,Licenses,Laws,Bank;public int[] Purchases,LoadedAmmo,ReserveAmmo; public int[] Stories,Choices,Career,Skins,Accessories,Shields,Courts; public bool[] Females;public bool Escaped,CasualClothes; public float X,Z,Health,Hour,Armor,Visa; }
     public sealed class Role
     {
         public string Name,Icon,Description;public Color Color;public int Pay;
@@ -63,7 +63,7 @@ namespace SunsetState
         }
         void StartGame(bool load)
         {
-            if(load)Load();else{CancelMission();RoleIndex=0;CasualClothes=false;Money=2500;Completed=0;Wanted=0;Escaped=false;StoryProgress=new int[Roles.Length];StoryChoices=new int[Roles.Length];CareerXP=new int[Roles.Length];LoadOutfits(null,null,null);CourtOutcomes=new int[10];visaUntil=0;BankBalance=0;StateLaws=0;PersonalLicenses=0;OwnedGunMask=0;Purchases=new int[6];Contraband=0;SelectedBoard=PersonalBoard.Skateboard;Hour=14;Player.Health=100;Player.Teleport(new Vector3(0,2,0));EquipForRole();}
+            if(load)Load();else{CancelMission();RoleIndex=0;CasualClothes=false;Money=2500;Completed=0;Wanted=0;Escaped=false;StoryProgress=new int[Roles.Length];StoryChoices=new int[Roles.Length];CareerXP=new int[Roles.Length];LoadOutfits(null,null,null);CourtOutcomes=new int[10];visaUntil=0;BankBalance=0;StateLaws=0;PersonalLicenses=0;OwnedGunMask=0;ShootingXP=0;Purchases=new int[6];Contraband=0;SelectedBoard=PersonalBoard.Skateboard;Hour=14;Player.Health=100;Player.Teleport(new Vector3(0,2,0));EquipForRole();}
             Playing=true;Panel="";Time.timeScale=1;SetCursor(true);Player.SetColor(Roles[RoleIndex].Color);
             if(!load && !SmokeMode){Panel="roles";Time.timeScale=0;SetCursor(false);}
             Notify("Добро пожаловать! Tab — профессии · J — работа · G — служебный · H — личный · U — доска · M — карта");
@@ -83,7 +83,7 @@ namespace SunsetState
             if(Input.GetKeyDown(KeyCode.P))Toggle("phone");
             if(Input.GetKeyDown(KeyCode.F7))Toggle("water-rescue");
             if(Panel!="")return;
-            UpdateCombat();if(Panel!="")return;
+            UpdateTraining();UpdateCombat();if(Panel!="")return;
             UpdateServiceTools();if(Panel!="")return;
             Hour=(Hour+Time.deltaTime*.012f)%24;
             float daylight=Mathf.Clamp01(Mathf.Sin((Hour-6)/12*Mathf.PI));Sun.intensity=.12f+daylight;
@@ -117,6 +117,7 @@ namespace SunsetState
         {VehicleMotor nearest=null;foreach(var car in Cars){if(!car || car.Driver)continue;float d=Vector3.Distance(position,car.transform.position);if(d<radius){nearest=car;radius=d;}}return nearest;}
         public bool TrySpecialAction()
         {
+            if(TryRangeAction())return true;
             if(TryBlackMarketAction())return true;
             if(TryTravelAction())return true;
             if(TryInteriorAction())return true;
@@ -193,6 +194,7 @@ namespace SunsetState
         void MoveMarker(){marker.transform.position=ActiveMission.Points[Step]+Vector3.up*2;marker.transform.localScale=new Vector3(5,2,5);}
         void UpdateMission()
         {
+            if(TrainingActive)return;
             if(ActiveMission==null){ClearPursuitTarget();return;}
             marker.transform.Rotate(0,35*Time.deltaTime,0);
             if(ActiveMission.TimeLimit>0)
@@ -233,18 +235,18 @@ namespace SunsetState
         void CancelMission(){ClearHostage();roadRepairTarget=null;ActiveMission=null;activeCampaignRole=-1;hold=0;ClearMissionEnemies();ClearServiceObjective();ClearPursuitTarget();if(marker)marker.SetActive(false);}
         void SelectRole(int index)
         {
-            ClearGovernorRescue();ClearCustody();CancelMission();RoleIndex=index;CasualClothes=false;Escaped=false;Wanted=index==9||index==14?1:0;Player.Teleport(RoleHome(index)+Vector3.right*4);Player.SetColor(Roles[index].Color);
+            StopTraining(false);ClearGovernorRescue();ClearCustody();CancelMission();RoleIndex=index;CasualClothes=false;Escaped=false;Wanted=index==9||index==14?1:0;Player.Teleport(RoleHome(index)+Vector3.right*4);Player.SetColor(Roles[index].Color);
             EquipForRole();
             storyTab=true;Panel=SmokeMode?"":"jobs";Time.timeScale=SmokeMode?1:0;SetCursor(SmokeMode);Notify("Твоя роль: "+Roles[index].Name+". Выбери свою историю.");Save();
         }
         public void Save()
         {
-            try{var s=new SaveData{Difficulty=DifficultyIndex,DifficultyVersion=1,Courts=CourtOutcomes,Visa=VisaRemaining,Bank=BankBalance,Licenses=PersonalLicenses,OwnedGuns=OwnedGunMask,Purchases=Purchases,LoadedAmmo=magazines,ReserveAmmo=reserves,Females=FemaleChoices,Skins=SkinChoices,Accessories=AccessoryChoices,Shields=ShieldChoices,Laws=StateLaws,Role=RoleIndex,Money=Money,Contraband=Contraband,Board=(int)SelectedBoard,Completed=Completed,X=SavePosition.x,Z=SavePosition.z,Health=Player.Health,Hour=Hour,Armor=Armor,Escaped=Escaped,CasualClothes=CasualClothes,Wanted=Wanted,Stories=StoryProgress,Choices=StoryChoices,Career=CareerXP};File.WriteAllText(SavePath,JsonUtility.ToJson(s));}
+            try{var s=new SaveData{ShootingXP=ShootingXP,Difficulty=DifficultyIndex,DifficultyVersion=1,Courts=CourtOutcomes,Visa=VisaRemaining,Bank=BankBalance,Licenses=PersonalLicenses,OwnedGuns=OwnedGunMask,Purchases=Purchases,LoadedAmmo=SavedMagazines,ReserveAmmo=SavedReserves,Females=FemaleChoices,Skins=SkinChoices,Accessories=AccessoryChoices,Shields=ShieldChoices,Laws=StateLaws,Role=RoleIndex,Money=Money,Contraband=Contraband,Board=(int)SelectedBoard,Completed=Completed,X=SavePosition.x,Z=SavePosition.z,Health=Player.Health,Hour=Hour,Armor=Armor,Escaped=Escaped,CasualClothes=CasualClothes,Wanted=Wanted,Stories=StoryProgress,Choices=StoryChoices,Career=CareerXP};File.WriteAllText(SavePath,JsonUtility.ToJson(s));}
             catch(Exception e){Debug.LogWarning("Save failed: "+e.Message);Notify("Не удалось сохранить игру: "+e.Message);}
         }
         void Load()
         {
-            try{var s=JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));RestoreDifficulty(s);LoadOutfits(s.Skins,s.Accessories,s.Shields,s.Females);Contraband=Mathf.Clamp(s.Contraband,0,20);SelectedBoard=(PersonalBoard)Mathf.Clamp(s.Board,0,2);RoleIndex=Mathf.Clamp(s.Role,0,Roles.Length-1);CourtOutcomes=s.Courts??new int[10];Array.Resize(ref CourtOutcomes,10);visaUntil=Time.realtimeSinceStartup+Mathf.Clamp(s.Visa,0,1200);BankBalance=Mathf.Max(0,s.Bank);StateLaws=s.Laws&7;PersonalLicenses=s.Licenses&7;OwnedGunMask=s.OwnedGuns&71;Money=Mathf.Max(0,s.Money);Completed=Mathf.Max(0,s.Completed);Hour=s.Hour%24;CasualClothes=s.CasualClothes;EquipForRole();LoadShop(s.OwnedGuns,s.Purchases,s.LoadedAmmo,s.ReserveAmmo);Armor=Mathf.Clamp(s.Armor,0,MaxArmor);LoadCareer(s.Career);Escaped=s.Escaped;Wanted=Mathf.Clamp(s.Wanted,0,5);StoryProgress=s.Stories??new int[Roles.Length];StoryChoices=s.Choices??new int[Roles.Length];Array.Resize(ref StoryProgress,Roles.Length);Array.Resize(ref StoryChoices,Roles.Length);for(int i=0;i<Roles.Length;i++){StoryProgress[i]=Mathf.Clamp(StoryProgress[i],0,StoryBook.ChapterCount);StoryChoices[i]=Mathf.Clamp(StoryChoices[i],0,StoryBook.ChoiceMask);}Player.Health=Mathf.Clamp(s.Health,1,100);Player.Teleport(new Vector3(Mathf.Clamp(s.X,WorldLimits.MinX+10,WorldLimits.MaxX-10),2,Mathf.Clamp(s.Z,WorldLimits.MinZ+10,WorldLimits.MaxZ-10)));}
+            try{StopTraining(false);var s=JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));RestoreDifficulty(s);ShootingXP=Mathf.Clamp(s.ShootingXP,0,1000);LoadOutfits(s.Skins,s.Accessories,s.Shields,s.Females);Contraband=Mathf.Clamp(s.Contraband,0,20);SelectedBoard=(PersonalBoard)Mathf.Clamp(s.Board,0,2);RoleIndex=Mathf.Clamp(s.Role,0,Roles.Length-1);CourtOutcomes=s.Courts??new int[10];Array.Resize(ref CourtOutcomes,10);visaUntil=Time.realtimeSinceStartup+Mathf.Clamp(s.Visa,0,1200);BankBalance=Mathf.Max(0,s.Bank);StateLaws=s.Laws&7;PersonalLicenses=s.Licenses&7;OwnedGunMask=s.OwnedGuns&71;Money=Mathf.Max(0,s.Money);Completed=Mathf.Max(0,s.Completed);Hour=s.Hour%24;CasualClothes=s.CasualClothes;EquipForRole();LoadShop(s.OwnedGuns,s.Purchases,s.LoadedAmmo,s.ReserveAmmo);Armor=Mathf.Clamp(s.Armor,0,MaxArmor);LoadCareer(s.Career);Escaped=s.Escaped;Wanted=Mathf.Clamp(s.Wanted,0,5);StoryProgress=s.Stories??new int[Roles.Length];StoryChoices=s.Choices??new int[Roles.Length];Array.Resize(ref StoryProgress,Roles.Length);Array.Resize(ref StoryChoices,Roles.Length);for(int i=0;i<Roles.Length;i++){StoryProgress[i]=Mathf.Clamp(StoryProgress[i],0,StoryBook.ChapterCount);StoryChoices[i]=Mathf.Clamp(StoryChoices[i],0,StoryBook.ChoiceMask);}Player.Health=Mathf.Clamp(s.Health,1,100);Player.Teleport(new Vector3(Mathf.Clamp(s.X,WorldLimits.MinX+10,WorldLimits.MaxX-10),2,Mathf.Clamp(s.Z,WorldLimits.MinZ+10,WorldLimits.MaxZ-10)));}
             catch(Exception e){Debug.LogWarning(e);Notify("Сохранение недоступно. Начата новая игра.");}
         }
         void OnApplicationQuit(){if(Playing)Save();}
@@ -353,19 +355,20 @@ namespace SunsetState
             else{Label(w-308,137,265,35,"Город ждёт тебя",heading);Label(w-308,185,265,85,"J — взять задание · G — служебный · H — личный · U — доска\nTab — выбрать профессию\nM — открыть карту",small);}
             DrawMap(new Rect(25,h-210,210,175),false);
             DrawGoalGuide(w,h);
-            DrawCombatHud(w,h);
+            DrawCombatHud(w,h);DrawTrainingHud();
+            if(Player.Vehicle)Label(w-330,h-215,310,30,"ТРАНСПОРТ: "+Mathf.CeilToInt(Player.Vehicle.Durability)+" / "+Player.Vehicle.MaxDurability+" HP",small);
             DrawDutyBanner(w,h);
             DrawRaidBanner(w,h);
             Label(420,62,500,28,"P — телефон / GPS"+(OnVice?" · VICE CITY · виза "+Mathf.CeilToInt(VisaRemaining/60)+" мин":"")+((RoleIndex==1||RoleIndex==2)?" · F6 — вызовы":""),small);
             RectBox(new Rect(255,h-82,200,7),new Color(.3f,.1f,.1f));RectBox(new Rect(255,h-82,200*Mathf.Clamp01(Player.Health/100),7),Roles[0].Color);
             Label(255,h-112,250,28,"ЗДОРОВЬЕ  "+Mathf.CeilToInt(Player.Health)+" · Q — аптечка",small);
-            Label(255,h-65,790,50,Player.BoardRiding?"ДОСКА: WASD — разгон / поворот · Пробел — тормоз · U — убрать\nH — личный гараж · G — служебный гараж":Player.Vehicle && Player.Vehicle.Kind==VehicleKind.Tank?"ТАНК: Z/X — башня · PageUp/Down — ствол · ПКМ — прицел · ЛКМ — огонь\nWASD — езда · E — выход · H — личный гараж · G — служебный":Player.Vehicle&&Player.Vehicle.Flying?"ВЕРТОЛЁТ: W/S — вперёд/назад · A/D — поворот · Пробел — вверх · Ctrl — вниз\nE — выход после посадки · G — служебный · H — личный · U — доска · O — маячки · Esc — пауза":Player.Vehicle?"W — газ · S — тормоз / задний ход · A/D — руль · Пробел — ручник\nB — гудок · O — маячки · L — фары · T/Y — радио · E — выход":"WASD — движение · Shift — бег · E — действие · F — инструмент / наручники\nTab — роли · J — задания · M — карта · G — служебный · H — личный · U — доска · K — карьера"+(IsLaw?"  ·  N — мегафон · C — допрос":"")+(RoleIndex==11?"  ·  L — продажа лицензий":"")+(RoleIndex==9||RoleIndex==14?"  ·  следи за конвоями полиции":""),small);
+            Label(255,h-65,790,50,Player.BoardRiding?"ДОСКА: WASD — разгон / поворот · Пробел — тормоз · U — убрать\nH — личный гараж · G — служебный гараж":Player.Vehicle && Player.Vehicle.Kind==VehicleKind.Tank?"ТАНК: Z/X — башня · PageUp/Down — ствол · ПКМ — прицел · ЛКМ — огонь\nWASD — езда · E — выход · H — личный гараж · G — служебный":Player.Vehicle&&Player.Vehicle.Flying?"ВЕРТОЛЁТ: W/S — вперёд/назад · A/D — поворот · Пробел — вверх · Ctrl — вниз\nE — выход после посадки · G — служебный · H — личный · U — доска · O — маячки · Esc — пауза":Player.Vehicle?"W — газ · S — тормоз / задний ход · A/D — руль · Пробел — ручник\nЛКМ — стрельба (1–4) · R — перезарядка · T/Y — радио · E — выход":"WASD — движение · Shift — бег · E — действие · F — инструмент / наручники\nTab — роли · J — задания · M — карта · G — служебный · H — личный · U — доска · K — карьера"+(IsLaw?"  ·  N — мегафон · C — допрос":"")+(RoleIndex==11?"  ·  L — продажа лицензий":"")+(RoleIndex==9||RoleIndex==14?"  ·  следи за конвоями полиции":""),small);
             Label(w-220,h-100,200,60,Player.Vehicle?Mathf.RoundToInt(Player.Vehicle.Speed)+" КМ/Ч":"ПЕШКОМ",heading);
             if(Player.Vehicle)Label(w-220,h-65,210,28,Player.Vehicle.Flying?"ВОЗДУШНЫЙ ТРАНСПОРТ":"ПЕРЕДАЧА "+(Player.Vehicle.Gear<0?"R":Player.Vehicle.Gear.ToString())+" · "+Mathf.RoundToInt(Player.Vehicle.RPM)+" RPM",small);
             if(StateRadio.Current!="")Label(420,32,500,25,"♫ "+StateRadio.Current+"  ·  T / Y",small);
             if(Swimming||breath<15)Label(420,92,500,30,"ВОЗДУХ: "+Mathf.CeilToInt(breath)+" С · F7 — спасение / эвакуация",small);
-            if(!Player.Vehicle)DrawCrosshair(w,h);
-            string prompt=NearbyBlackMarket()>=0?"E — Гуррам: чёрный рынок / снять розыск":InteriorPrompt();
+            if(!Player.Vehicle||CanDriveBy)DrawCrosshair(w,h);
+            string prompt=TrainingActive?"E — закончить тренировку":NearbyRange()>=0?"E — тир: тренировка стрельбы":NearbyBlackMarket()>=0?"E — Гуррам: чёрный рынок / снять розыск":InteriorPrompt();
             if(Player.Vehicle)prompt="E — выйти из автомобиля";
             else if(prompt==""){foreach(var p in WorldBuilder.Places)if(Vector3.Distance(Player.Position,p.Position)<7)prompt="E — "+p.Name;if(prompt=="" && NearestVehicle(Player.Position,5))prompt="E — сесть в автомобиль";}
             if(ActiveMission!=null && Vector3.Distance(Player.Position,ActiveMission.Points[Step])<12)prompt=ActiveMission.Vehicle && !Player.Vehicle?"Для задания нужен автомобиль":Player.Vehicle && Player.Vehicle.Speed>=6?"Остановись у маркера":"Выполнение: "+Mathf.FloorToInt(hold/3*100)+"%";
@@ -444,6 +447,7 @@ namespace SunsetState
             else if(Panel=="career")DrawCareer(left,h);
             else if(Panel=="licenses")DrawLicenses(left,h);
             else if(Panel=="difficulty")DrawDifficultyChoices(left,100,1040);
+            else if(Panel=="shooting-range")DrawRangePanel(left,h);
             else if(Panel=="black-market")DrawBlackMarket(left,h);
             else if(Panel=="water-rescue")DrawWaterRescue(left,h);
             else if(Panel=="phone")DrawPhone(left,h);
@@ -487,7 +491,7 @@ namespace SunsetState
                 if(Button(new Rect(left,474,370,52),"СОХРАНИТЬ И ВЫЙТИ")){Save();Application.Quit();}
                 if(Button(new Rect(left,542,370,42),"F11 · ПОЛНЫЙ ЭКРАН / ОКНО"))ToggleFullscreen();
                 if(Button(new Rect(left+440,550,620,42),"СЛОЖНОСТЬ: "+Difficulty.Name.ToUpper()))Toggle("difficulty");
-                Label(left+440,270,620,260,"УПРАВЛЕНИЕ\n\nWASD — ходьба / вождение · Мышь — камера\nShift — бег · Пробел — прыжок / ручной тормоз\nE — взаимодействие / вход / выход из машины\nTab — профессии · J — задания · M — карта\nG — служебный · H — личный транспорт · O — маячки\nВертолёт: Пробел — вверх, Ctrl / C — вниз\nЛКМ — выстрел · Колесо — расстояние камеры",body);
+                Label(left+440,270,620,260,"УПРАВЛЕНИЕ\n\nWASD — ходьба / вождение · Мышь — камера\nShift — бег · Пробел — прыжок / ручной тормоз\nE — взаимодействие / вход / выход из машины\nTab — профессии · J — задания · M — карта\nG — служебный · H — личный транспорт · O — маячки\nВертолёт: Пробел — вверх, Ctrl / C — вниз\nЛКМ — выстрел · Колесо / Num+ / Num− — масштаб камеры",body);
                 Label(left,h-100,1050,50,"Сохраняются роль, деньги, здоровье, время и позиция. Текущее задание и состояние машин сбрасываются при запуске.\nЕсть истории для 15 ролей, оружие и служебные инструменты. Входы в здания — E. Внутри фракции доступны раздевалка, снаряжение и сюжет.",small);
             }
         }

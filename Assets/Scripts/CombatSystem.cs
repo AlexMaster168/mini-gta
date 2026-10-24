@@ -23,7 +23,9 @@ namespace SunsetState
             new WeaponDefinition("Наручники",0,0,.6f,0,3.5f,0),
             new WeaponDefinition("Снайперская винтовка",10,90,.95f,.0018f,500,2.8f),
             new WeaponDefinition("РПК · пулемёт",75,36,.1f,.018f,260,4),
-            new WeaponDefinition("G36",30,30,.085f,.008f,230,2.2f)};
+            new WeaponDefinition("G36",30,30,.085f,.008f,230,2.2f),
+            new WeaponDefinition("Миниган",300,24,.045f,.016f,220,6)};
+        public const int MinigunIndex=13;
         public int WeaponIndex;
         public float Armor=0;
         public float MaxArmor=>(RoleIndex==2?150:100)+AccessoryArmorBonus;
@@ -31,7 +33,7 @@ namespace SunsetState
         public float FireInterval=>Weapons[WeaponIndex].Interval;
         public bool IsLaw=>RoleIndex==1 || RoleIndex==2 || RoleIndex==12;
         public bool LawEnforcement=>IsLaw || RoleIndex==3;
-        public bool Armed=>IsLaw || RoleIndex==3 || RoleIndex==9 || RoleIndex==14 || RoleIndex==16 || RoleIndex==0 && OwnedGunMask!=0;
+        public bool Armed=>TrainingActive || IsLaw || RoleIndex==3 || RoleIndex==9 || RoleIndex==14 || RoleIndex==16 || RoleIndex==0 && OwnedGunMask!=0;
         public readonly List<HostileAgent> Enemies=new List<HostileAgent>();
         GameObject heldGun,vest;AudioSource combatAudio;AudioClip shotSound,taserSound;
         AudioClip[] recordedShots;
@@ -43,6 +45,7 @@ namespace SunsetState
             recordedShots=new AudioClip[7];string[] soundNames={"Pistol","Deagle","Uzi","MP5","M4","AK47","Shotgun"};for(int i=0;i<7;i++)recordedShots[i]=Resources.Load<AudioClip>("Audio/Weapons/"+soundNames[i]);
             heldGun=WorldBuilder.Box("Equipped weapon",Vector3.zero,new Vector3(.12f,.15f,.7f),new Color(.1f,.12f,.13f),null,false);
             heldGun.transform.SetParent(Player.transform,false);heldGun.transform.localPosition=new Vector3(.4f,1.15f,.5f);
+            MinigunVisual.Create(Player.transform);
             vest=WorldBuilder.Box("Body armour",Vector3.zero,new Vector3(.52f,.43f,.26f),new Color(.12f,.16f,.17f),null,false);
             vest.transform.SetParent(Player.transform,false);vest.transform.localPosition=Vector3.up*1.1f;
             EquipForRole();
@@ -64,7 +67,8 @@ namespace SunsetState
         void UpdateCombat()
         {
             if(!heldGun)return;
-            heldGun.SetActive(Armed && !ServiceSelected && !Player.Vehicle && WeaponIndex!=9);vest.SetActive(Armor>0 && !Player.Vehicle);
+            heldGun.SetActive(Armed && !ServiceSelected && (!Player.Vehicle||CanDriveBy) && WeaponIndex!=9 && WeaponIndex!=MinigunIndex);vest.SetActive(Armor>0 && !Player.Vehicle);
+            if(CanDriveBy){heldGun.transform.position=WeaponOrigin();heldGun.transform.rotation=Quaternion.LookRotation(Camera.main.transform.forward);}else{heldGun.transform.localPosition=new Vector3(.4f,1.15f,.5f);heldGun.transform.localRotation=Quaternion.identity;}
             heldGun.transform.localScale=WeaponIndex==7?new Vector3(.18f,.14f,.3f):WeaponIndex==8?new Vector3(.09f,.09f,.85f):new Vector3(.12f,.15f,WeaponIndex<4?.4f:.7f);
             heldGun.GetComponent<Renderer>().sharedMaterial=WorldBuilder.Mat(WeaponIndex==7?new Color(.9f,.75f,.15f):new Color(.1f,.12f,.13f));
             if(Input.GetKeyDown(KeyCode.I)){Toggle("equipment");return;}
@@ -88,11 +92,12 @@ namespace SunsetState
         {
             Vector3 delta=point-origin;float distance=delta.magnitude;if(distance<.05f)return true;
             foreach(var hit in Physics.RaycastAll(origin,delta/distance,distance-.03f,~(1<<2),QueryTriggerInteraction.Ignore))
-                if(!hit.transform.IsChildOf(target.transform))return false;
+                if(!hit.transform.IsChildOf(target.transform)&&(!Player.Vehicle||!hit.transform.IsChildOf(Player.Vehicle.transform)))return false;
             return true;
         }
         HostileAgent FindAutoTarget(Camera camera,float maxDistance)
         {
+            if(TrainingActive){autoAimTarget=null;return null;}
             if(!camera){autoAimTarget=null;return null;}
             float bestScore=-1;HostileAgent best=null;Vector3 origin=camera.transform.position;
             foreach(var enemy in Enemies)
@@ -104,7 +109,7 @@ namespace SunsetState
                 if(viewport.z<=0 || viewport.x<=0 || viewport.x>=1 || viewport.y<=0 || viewport.y>=1)continue;
                 bool retained=enemy==autoAimTarget;float dot=Vector3.Dot(delta.normalized,camera.transform.forward);
                 if(dot<Mathf.Cos((retained?22:18)*Mathf.Deg2Rad))continue;
-                if(!ClearAimLine(origin,point,enemy) || !ClearAimLine(Player.transform.position+Vector3.up*1.3f,point,enemy))continue;
+                if(!ClearAimLine(origin,point,enemy) || !ClearAimLine(WeaponOrigin(),point,enemy))continue;
                 float score=dot+(retained?.025f:0);if(score<=bestScore)continue;best=enemy;bestScore=score;
             }
             autoAimTarget=best;return best;
@@ -117,17 +122,19 @@ namespace SunsetState
         void TryFireWeapon()
         {
             if(!Armed || ServiceSelected){UseServiceTool();return;}
-            if(Player.Vehicle || ShieldBlocking || reloading || Time.time<nextShot)return;
+            if(Player.Vehicle&&!CanDriveBy || ShieldBlocking || reloading || Time.time<nextShot)return;
+            if(TrainingActive&&!AtFiringLine){Notify("Вернись за жёлтую линию тира.");return;}
             if(!CanUseWeapon(WeaponIndex))return;
             var weapon=Weapons[WeaponIndex];nextShot=Time.time+weapon.Interval;
             if(WeaponIndex==9){TryUseCuffs();return;}
             if(WeaponIndex>=7 && WeaponIndex<=9 && !IsLaw)return;
             if(weapon.Capacity>0 && magazines[WeaponIndex]<=0){ReloadWeapon();return;}
             if(weapon.Capacity>0)magazines[WeaponIndex]--;
-            Vector3 start=Player.transform.position+Vector3.up*1.3f;Camera camera=Camera.main;
+            if(TrainingActive)trainingShots++;
+            Vector3 start=WeaponOrigin();Camera camera=Camera.main;
             HostileAgent locked=FindAutoTarget(camera,AutoAimRange);
             Vector3 aimPoint=locked?AimPoint(locked):camera.transform.position+camera.transform.forward*weapon.Range;
-            Vector3 flat=Vector3.ProjectOnPlane(aimPoint-start,Vector3.up);if(flat.sqrMagnitude>.1f)Player.transform.rotation=Quaternion.LookRotation(flat);
+            Vector3 flat=Vector3.ProjectOnPlane(aimPoint-start,Vector3.up);if(!Player.Vehicle&&flat.sqrMagnitude>.1f)Player.transform.rotation=Quaternion.LookRotation(flat);
             if(WeaponIndex==8){UseBaton();return;}
             int soundIndex=WeaponIndex<7?WeaponIndex:WeaponIndex==10?1:WeaponIndex==11?5:4;
             combatAudio.pitch=WeaponIndex==2?1.12f:WeaponIndex==10?.7f:WeaponIndex==3?.95f:1;combatAudio.PlayOneShot(WeaponIndex==7?taserSound:recordedShots[soundIndex]?recordedShots[soundIndex]:shotSound);
@@ -144,14 +151,16 @@ namespace SunsetState
                 {
                     direction=(camera.transform.forward+camera.transform.right*Random.Range(-weapon.Spread,weapon.Spread)*AccuracyMultiplier+camera.transform.up*Random.Range(-weapon.Spread,weapon.Spread)*AccuracyMultiplier).normalized;
                     end=camera.transform.position+direction*weapon.Range;
-                    if(Physics.Raycast(camera.transform.position,direction,out RaycastHit target,weapon.Range))end=target.point;
+                    if(WeaponRaycast(camera.transform.position,direction,out RaycastHit target,weapon.Range))end=target.point;
                 }
-                RaycastHit hit;bool didHit=WeaponIndex==7?Physics.SphereCast(start,.45f,(end-start).normalized,out hit,weapon.Range,~(1<<2),QueryTriggerInteraction.Ignore):Physics.Raycast(start,(end-start).normalized,out hit,weapon.Range);
+                RaycastHit hit;bool didHit=WeaponIndex==7?Physics.SphereCast(start,.45f,(end-start).normalized,out hit,weapon.Range,~(1<<2),QueryTriggerInteraction.Ignore):WeaponRaycast(start,(end-start).normalized,out hit,weapon.Range);
                 if(didHit)
                 {
                     end=hit.point;var enemy=hit.collider.GetComponentInParent<HostileAgent>();
                     var actor=NpcEffects.Actor(hit.collider);
-                    if(WeaponIndex==7){if(actor && NpcEffects.Stun(actor,12))Notify("Цель на земле на 12 секунд.");}
+                    if(TrainingActive){var practice=hit.collider.GetComponent<RangeTarget>();if(practice)practice.Hit();}
+                    else if(hit.collider.GetComponent<RangeTarget>()){}
+                    else if(WeaponIndex==7){if(actor && NpcEffects.Stun(actor,12))Notify("Цель на земле на 12 секунд.");}
                     else if(hit.collider.GetComponentInParent<VehicleMotor>()){var car=hit.collider.GetComponentInParent<VehicleMotor>();car.GetComponent<VehicleDestruction>().BulletHit(weapon.Damage,hit.point);if(enemy)enemy.TakeDamage(weapon.Damage);}
                     else if(enemy)enemy.TakeDamage(weapon.Damage);
                     else if(hit.collider.GetComponentInParent<PatrolDrone>()){hit.collider.GetComponentInParent<PatrolDrone>().TakeDamage(weapon.Damage);}
@@ -161,7 +170,7 @@ namespace SunsetState
                 }
                 DrawShot(start,end,WeaponIndex==7?new Color(.3f,.7f,1):new Color(1,.8f,.35f));
             }
-            if(!LawEnforcement && (RoleIndex==9 || RoleIndex==14 || RoleIndex==16)){Wanted=Mathf.Min(5,Wanted+1);wantedTimer=0;}
+            if(!TrainingActive&&!LawEnforcement && (RoleIndex==9 || RoleIndex==14 || RoleIndex==16)){Wanted=Mathf.Min(5,Wanted+1);wantedTimer=0;}
         }
         void UseBaton()
         {

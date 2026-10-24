@@ -9,15 +9,15 @@ namespace SunsetState
         {
             var game=GameRoot.Instance;if(!game || !game.Playing || game.Panel!="" || Destroyed)return;
             if(car.Durability<=0){Explode();return;}
-            if(car.Durability<50 && !damageSmoke)damageSmoke=EngineEffect(false);
-            if(car.Durability>=50 && damageSmoke){Destroy(damageSmoke);damageSmoke=null;}
-            if(car.Durability<=15){if(!engineFire)engineFire=EngineEffect(true);car.Durability=Mathf.Max(0,car.Durability-Time.deltaTime*1.4f);}
+            if(car.HealthFraction<.4f && !damageSmoke)damageSmoke=EngineEffect(false);
+            if(car.HealthFraction>=.4f && damageSmoke){Destroy(damageSmoke);damageSmoke=null;}
+            if(car.HealthFraction<=.1f){if(!engineFire)engineFire=EngineEffect(true);car.Durability=Mathf.Max(0,car.Durability-Time.deltaTime*1.4f);}
             else if(engineFire){Destroy(engineFire);engineFire=null;}
         }
         GameObject EngineEffect(bool fire)
         {
             var go=new GameObject(fire?"Engine fire":"Engine smoke");go.transform.SetParent(transform,false);go.transform.localPosition=new Vector3(0,.9f,car.Dimensions.z*.3f);
-            var system=go.AddComponent<ParticleSystem>();system.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);var main=system.main;main.loop=true;main.startLifetime=fire?1:2.5f;main.startSpeed=fire?1.3f:1;main.startSize=fire?.65f:1.2f;main.startColor=fire?new Color(1,.35f,.04f,.8f):new Color(.22f,.22f,.22f,.5f);main.gravityModifier=-.1f;main.maxParticles=40;var rate=system.emission;rate.rateOverTime=fire?14:8;var shape=system.shape;shape.shapeType=ParticleSystemShapeType.Sphere;shape.radius=.4f;system.GetComponent<ParticleSystemRenderer>().sharedMaterial=Resources.Load<Material>("ShotBase");system.Play();return go;
+            var system=go.AddComponent<ParticleSystem>();system.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);var main=system.main;main.loop=true;main.startLifetime=fire?1:1.3f;main.startSpeed=fire?1.3f:1;main.startSize=fire?.65f:.45f;main.startColor=fire?new Color(1,.35f,.04f,.8f):new Color(.22f,.22f,.22f,.16f);main.gravityModifier=-.1f;main.maxParticles=40;var rate=system.emission;rate.rateOverTime=fire?14:4;var shape=system.shape;shape.shapeType=ParticleSystemShapeType.Sphere;shape.radius=.4f;system.GetComponent<ParticleSystemRenderer>().sharedMaterial=Resources.Load<Material>("ShotBase");if(!fire){main.simulationSpace=ParticleSystemSimulationSpace.World;go.AddComponent<CameraClearSmoke>();}system.Play();return go;
         }
         public void BulletHit(float damage,Vector3 point)
         {
@@ -57,7 +57,7 @@ namespace SunsetState
             if(burning)
             {
                 var flames=new GameObject("Wreck flames");flames.transform.SetParent(root.transform,false);var fire=flames.AddComponent<ParticleSystem>();fire.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);var flame=fire.main;flame.duration=18;flame.loop=false;flame.startLifetime=1.1f;flame.startSpeed=1.4f;flame.startSize=.9f;flame.startColor=new Color(1,.3f,.035f,.8f);flame.gravityModifier=-.1f;flame.maxParticles=50;var flameRate=fire.emission;flameRate.rateOverTime=24;fire.GetComponent<ParticleSystemRenderer>().sharedMaterial=Resources.Load<Material>("ShotBase");fire.Play();
-                var smoke=new GameObject("Wreck smoke");smoke.transform.SetParent(root.transform,false);var system=smoke.AddComponent<ParticleSystem>();system.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);var settings=system.main;settings.duration=18;settings.loop=false;settings.startLifetime=3;settings.startSpeed=1.7f;settings.startSize=1.8f;settings.startColor=new Color(.12f,.12f,.12f,.6f);settings.gravityModifier=-.08f;settings.maxParticles=80;var rate=system.emission;rate.rateOverTime=15;system.GetComponent<ParticleSystemRenderer>().sharedMaterial=Resources.Load<Material>("ShotBase");system.Play();
+                var smoke=new GameObject("Wreck smoke");smoke.transform.SetParent(root.transform,false);var system=smoke.AddComponent<ParticleSystem>();system.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);var settings=system.main;settings.duration=18;settings.loop=false;settings.startLifetime=3;settings.startSpeed=1.7f;settings.startSize=.8f;settings.startColor=new Color(.12f,.12f,.12f,.16f);settings.gravityModifier=-.08f;settings.maxParticles=80;var rate=system.emission;rate.rateOverTime=6;system.GetComponent<ParticleSystemRenderer>().sharedMaterial=Resources.Load<Material>("ShotBase");settings.simulationSpace=ParticleSystemSimulationSpace.World;smoke.AddComponent<CameraClearSmoke>();system.Play();
             }
             Object.Destroy(root,burning?23:2);
         }

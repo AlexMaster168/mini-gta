@@ -57,7 +57,7 @@ namespace SunsetState
             }
             else
             {
-                var broken=WorldBuilder.SpawnCar(this,location+new Vector3(5,1,0),"Неисправный автомобиль",new Color(.4f,.43f,.45f),false,0);broken.Durability=10;serviceSubject=broken.gameObject;
+                var broken=WorldBuilder.SpawnCar(this,location+new Vector3(5,1,0),"Неисправный автомобиль",new Color(.4f,.43f,.45f),false,0);broken.Durability=broken.MaxDurability*.3f;serviceSubject=broken.gameObject;
             }
         }
         void ClearServiceObjective(){if(serviceSubject){var car=serviceSubject.GetComponent<VehicleMotor>();if(car)Cars.Remove(car);Destroy(serviceSubject);}if(barrier)Destroy(barrier);serviceSubject=null;barrier=null;stretcher=null;patientCarried=false;serviceDone=true;}
@@ -84,7 +84,7 @@ namespace SunsetState
             {if(barrier && Vector3.Distance(Player.Position,barrier.transform.position)<5){Destroy(barrier);barrier=null;Notify("Завал разобран пожарным топором.");}else Notify("Подойди к деревянному завалу у места вызова.");return;}
             if((RoleIndex==8 && ToolIndex==0)||(RoleIndex==3 && ToolIndex==1)||(RoleIndex==7 && ToolIndex==1)||(RoleIndex==9 && ToolIndex==1)||(RoleIndex==14 && ToolIndex==1))
             {
-                var car=Player.Vehicle?Player.Vehicle:NearestVehicle(Player.Position,7);if(!car){Notify("Рядом нет автомобиля для ремонта.");return;}car.Durability=100;if(RoleIndex==8 && serviceSubject==car.gameObject){serviceDone=true;AwardXP(20);}Notify("Автомобиль отремонтирован. Прочность 100%.");return;
+                var car=Player.Vehicle?Player.Vehicle:NearestVehicle(Player.Position,7);if(!car){Notify("Рядом нет автомобиля для ремонта.");return;}car.Durability=car.MaxDurability;if(RoleIndex==8 && serviceSubject==car.gameObject){serviceDone=true;AwardXP(20);}Notify("Автомобиль отремонтирован. Прочность 100%.");return;
             }
             if(RoleIndex==8 && ToolIndex==1){ToggleTow();return;}
             if(ToolIndex==2 || RoleIndex==3 || RoleIndex==9 || RoleIndex==14){HealSelf();return;}

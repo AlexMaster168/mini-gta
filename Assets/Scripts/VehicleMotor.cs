@@ -12,6 +12,8 @@ namespace SunsetState
         public Vector2? AIControls;
         public VehicleKind Kind;
         public float Durability=100;
+        public float MaxDurability=>Kind==VehicleKind.Tank?1200:Kind==VehicleKind.Truck||Kind==VehicleKind.Bus?450:Kind==VehicleKind.Motorcycle||Kind==VehicleKind.Bicycle?180:300;
+        public float HealthFraction=>Mathf.Clamp01(Durability/MaxDurability);
         public Vector3 Dimensions;
         public Transform Rotor;
         public int Faction = -1;
@@ -28,6 +30,7 @@ namespace SunsetState
         float trafficLimit=850;
         public void Initialize()
         {
+            Durability=MaxDurability;
             if(Vector3.Distance(transform.position,StateBuilder.SanFierro)<1000){trafficCenter=StateBuilder.SanFierro;trafficLimit=500;}
             else if(Vector3.Distance(transform.position,StateBuilder.LasVenturas)<1000){trafficCenter=StateBuilder.LasVenturas;trafficLimit=500;}
             Body = gameObject.AddComponent<Rigidbody>();
@@ -41,7 +44,7 @@ namespace SunsetState
             gameObject.AddComponent<VehicleAudio>().Initialize(this);
             gameObject.AddComponent<VehicleImpact>();
             gameObject.AddComponent<VehicleRecovery>();gameObject.AddComponent<VehicleWaterState>();
-            gameObject.AddComponent<VehicleDestruction>();
+            gameObject.AddComponent<VehicleDestruction>();gameObject.AddComponent<VehicleBodyDamage>();
             if(Kind==VehicleKind.Bicycle)gameObject.AddComponent<BicycleCrank>();
             if(Kind==VehicleKind.Tank)gameObject.AddComponent<TankWeapon>().Initialize(this);
         }
@@ -101,7 +104,7 @@ namespace SunsetState
             }
             float acceleration = Kind == VehicleKind.Sport ? 22 : Kind == VehicleKind.Motorcycle ? 19 : Kind == VehicleKind.Tank ? 7 : Kind == VehicleKind.Truck || Kind == VehicleKind.Bus ? 8 : 14;
             float maxSpeed = Kind == VehicleKind.Sport ? 65 : Kind == VehicleKind.Motorcycle ? 53 : Kind == VehicleKind.Tank ? 26 : Kind == VehicleKind.Truck || Kind == VehicleKind.Bus ? 26 : OnWater ? 30 : 40;
-            if(Durability<25){maxSpeed*=.35f;acceleration*=.45f;}
+            if(HealthFraction<.15f){maxSpeed*=.5f;acceleration*=.6f;}
             if (Body.linearVelocity.magnitude < maxSpeed || throttle * Vector3.Dot(Body.linearVelocity, transform.forward) < 0)
                 Body.AddForce(transform.forward * throttle * acceleration, ForceMode.Acceleration);
             float forwardSpeed = Vector3.Dot(Body.linearVelocity, transform.forward);
@@ -113,7 +116,7 @@ namespace SunsetState
         }
         void OnCollisionEnter(Collision collision)
         {
-            if(collision.relativeVelocity.magnitude>6)Durability=Mathf.Max(0,Durability-collision.relativeVelocity.magnitude*.5f);
+            if(collision.relativeVelocity.magnitude>8)Durability=Mathf.Max(0,Durability-(collision.relativeVelocity.magnitude-5)*.35f);
             var other=collision.collider.GetComponentInParent<VehicleMotor>();if(other)GetComponent<VehicleImpact>().Ram(other,collision.relativeVelocity.magnitude);
         }
     }

@@ -41,7 +41,7 @@ namespace SunsetState
         }
         public static void Blast(Vector3 position,VehicleMotor owner)
         {
-            VehicleDestruction.ExplosionDamage(position,owner,220,11);
+            VehicleDestruction.ExplosionDamage(position,owner,650,11);
             VehicleDestruction.ExplosionEffect(position,false);
         }
     }

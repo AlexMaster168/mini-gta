@@ -29,6 +29,8 @@ namespace SunsetState
         bool CanUseWeapon(int index)
         {
             if(index<0||index>=Weapons.Length)return false;
+            if(TrainingActive)return TrainingWeaponAllowed(index);
+            if(index==MinigunIndex)return RoleIndex==1||RoleIndex==2;
             if(RoleIndex==0)return (OwnedGunMask&(1<<index))!=0;
             return (IsLaw||RoleIndex==3||RoleIndex==9||RoleIndex==14||RoleIndex==16) && (index<7||index>9||IsLaw);
         }
@@ -57,7 +59,7 @@ namespace SunsetState
             if(item==1){Player.Health=Mathf.Min(100,Player.Health+5);drunkUntil=Mathf.Max(Time.time,drunkUntil-15);}
             if(item==2)drunkUntil=Time.time+30;
             if(item==3)Player.Health=Mathf.Min(100,Player.Health+60);
-            if(item==4){var vehicle=Player.Vehicle?Player.Vehicle:NearestVehicle(Player.Position,8);if(!vehicle || vehicle.Durability<=0){Notify("Нужен исправимый транспорт рядом на улице.");return false;}vehicle.Durability=100;}
+            if(item==4){var vehicle=Player.Vehicle?Player.Vehicle:NearestVehicle(Player.Position,8);if(!vehicle || vehicle.Durability<=0){Notify("Нужен исправимый транспорт рядом на улице.");return false;}vehicle.Durability=vehicle.MaxDurability;}
             if(item==5)Armor=MaxArmor;
             Purchases[item]--;Save();Notify("Использовано: "+Goods[item]);return true;
         }

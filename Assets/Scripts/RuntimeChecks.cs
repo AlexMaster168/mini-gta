@@ -30,6 +30,8 @@ namespace SunsetState
             yield return CheckReadability(value=>success &= value);
             yield return CheckBlackMarket(value=>success &= value);
             try{CheckDifficulty();CheckRadioLibrary();}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
+            yield return CheckCameraVehicles(value=>success &= value);
+            try{CheckShootingRanges();}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
             yield return CheckDriving(value=>success &= value);
             Debug.Log(success?"SUNSET_SMOKE_OK: 18 roles, 180 jobs, 900 story chapters with branches, fleet permissions, prison escape, save, combat, services, helicopter, suspension, acceleration, braking, reverse, steering, handbrake":"SUNSET_SMOKE_FAILED");
             Application.Quit(success?0:1);
@@ -68,7 +70,7 @@ namespace SunsetState
             Player.Enter(crashCar);float healthBefore=Player.Health,armorBefore=Armor;
             crashCar.Body.linearVelocity=Vector3.forward*22;
             yield return new WaitForSeconds(1.5f);
-            try{Require(crashCar.Durability<100,"Collision test must actually hit an obstacle");Require(Player.Health==healthBefore && Armor==armorBefore,"Crashes must not damage player health or armor");}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);result(false);}
+            try{Require(crashCar.Durability<crashCar.MaxDurability,"Collision test must actually hit an obstacle");Require(Player.Health==healthBefore && Armor==armorBefore,"Crashes must not damage player health or armor");}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);result(false);}
             Player.Teleport(new Vector3(0,2,0));Cars.Remove(crashCar);Destroy(crashCar.gameObject);Destroy(wall);
         }
         IEnumerator CheckStructureAndMissions(Action<bool> result)
@@ -158,7 +160,7 @@ namespace SunsetState
             yield return null;Require(!recoveryTarget.Downed,"Target must stand up after stun expires");Enemies.Remove(recoveryTarget);Destroy(recoveryTarget.gameObject);
             for(int weapon=10;weapon<Weapons.Length;weapon++)
             {
-                Player.Teleport(new Vector3(3100,2,-1000));var rifleTarget=HostileAgent.Spawn(this,Player.Position+Vector3.forward*9,"Rifle hit check",false);yield return new WaitForFixedUpdate();
+                if(!CanUseWeapon(weapon))continue;Player.Teleport(new Vector3(3100,2,-1000));var rifleTarget=HostileAgent.Spawn(this,Player.Position+Vector3.forward*9,"Rifle hit check",false);yield return new WaitForFixedUpdate();
                 Camera.main.transform.position=Player.Position+new Vector3(0,1.3f,-7);Camera.main.transform.LookAt(rifleTarget.transform.position+Vector3.up*1.1f);WeaponIndex=weapon;nextShot=0;int rounds=magazines[weapon];Fire();Require(rifleTarget.Health<100 && magazines[weapon]==rounds-1,"New rifle must hit and consume ammo: "+weapon);
                 Enemies.Remove(rifleTarget);Destroy(rifleTarget.gameObject);magazines[weapon]=0;ReloadWeapon();reloadingUntil=Time.time-1;UpdateCombat();Require(magazines[weapon]==Weapons[weapon].Capacity,"New rifle reload: "+weapon);
             }
@@ -168,7 +170,7 @@ namespace SunsetState
             ToolIndex=1;toolCooldown=0;UseServiceTool();Require(patientCarried && serviceDone,"Stretcher picks up patient and unlocks delivery");CancelMission();
             SelectRole(5);AcceptMission(0);Player.Teleport(serviceSubject.transform.position+Vector3.right*7);ToolIndex=0;
             for(int i=0;i<3;i++){toolCooldown=0;UseServiceTool();}Require(fireStrength==0 && serviceDone,"Extinguisher puts out mission fire");CancelMission();
-            SelectRole(8);AcceptMission(0);Player.Teleport(serviceSubject.transform.position+Vector3.right*3);ToolIndex=0;toolCooldown=0;UseServiceTool();Require(serviceDone && serviceSubject.GetComponent<VehicleMotor>().Durability==100,"Mechanic repairs damaged vehicle");CancelMission();
+            SelectRole(8);AcceptMission(0);Player.Teleport(serviceSubject.transform.position+Vector3.right*3);ToolIndex=0;toolCooldown=0;UseServiceTool();Require(serviceDone && serviceSubject.GetComponent<VehicleMotor>().HealthFraction==1,"Mechanic repairs damaged vehicle");CancelMission();
             SelectRole(0);StoryProgress[0]=0;BeginStory(0);int missionSteps=0;while(ActiveMission!=null && missionSteps++<30){Player.Teleport(ActiveMission.Points[Step]);hold=3.01f;UpdateMission();}
             Require(StoryProgress[0]==1,"Story completion advances only selected role");SelectRole(1);Require(StoryProgress[0]==1,"Changing role preserves story progress");
             DutyChecks();

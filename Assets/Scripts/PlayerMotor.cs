@@ -36,7 +36,7 @@ namespace SunsetState
                     if (nearest) Enter(nearest);
                 }
             }
-            if (Vehicle) return;
+            if (Vehicle){if(game.CanDriveBy&&Input.GetMouseButton(0)&&shotCooldown<=0){shotCooldown=game.FireInterval;game.Fire();}return;}
             if(Input.GetKeyDown(KeyCode.Backspace)){Teleport(Position);game.Notify("Персонаж перемещён на свободное место.");}
             var camera = Camera.main.transform;
             Vector3 forward = Vector3.ProjectOnPlane(camera.forward, Vector3.up).normalized;
@@ -89,6 +89,10 @@ namespace SunsetState
         public PlayerMotor Target;
         float yaw = 0, pitch = 19, distance = 7;
         float mouseIdle;VehicleMotor previousVehicle;
+        public float Pitch=>pitch;
+        public float Distance=>distance;
+        public void Look(float horizontal,float vertical){yaw+=horizontal*2.3f;pitch=Mathf.Clamp(pitch-vertical*1.7f,-75,80);}
+        public void Zoom(float amount){distance=Mathf.Clamp(distance-amount,2,35);}
         void LateUpdate()
         {
             if (!Target) return;
@@ -98,15 +102,16 @@ namespace SunsetState
                 float mouseX=Input.GetAxis("Mouse X"),mouseY=Input.GetAxis("Mouse Y");
                 mouseIdle=Mathf.Abs(mouseX)+Mathf.Abs(mouseY)>.04f?0:mouseIdle+Time.deltaTime;
                 if(Target.Vehicle!=previousVehicle){previousVehicle=Target.Vehicle;if(previousVehicle){yaw=previousVehicle.transform.eulerAngles.y;mouseIdle=0;}}
-                yaw += mouseX * 2.3f;
-                if(Target.Vehicle && !Target.Vehicle.Flying && Target.Vehicle.Speed>12 && mouseIdle>1.2f && !Input.GetMouseButton(1))
+                Look(mouseX,mouseY);
+                if(Target.Vehicle && !Target.Vehicle.Flying && Target.Vehicle.Speed>12 && mouseIdle>1.2f && !Input.GetMouseButton(1) && !Input.GetMouseButton(0))
                 {
                     float heading=Target.Vehicle.transform.eulerAngles.y;
                     if(Vector3.Dot(Target.Vehicle.Body.linearVelocity,Target.Vehicle.transform.forward)<-1)heading+=180;
                     yaw=Mathf.LerpAngle(yaw,heading,1-Mathf.Exp(-Time.deltaTime*2.1f));
                 }
-                pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * 1.7f, 12, 65);
-                distance = Mathf.Clamp(distance - Input.mouseScrollDelta.y, 5, 23);
+                bool tank=Target.Vehicle&&Target.Vehicle.Kind==VehicleKind.Tank;
+                float keyZoom=(Input.GetKey(KeyCode.KeypadPlus)||!tank&&Input.GetKey(KeyCode.PageUp)?1:0)-(Input.GetKey(KeyCode.KeypadMinus)||!tank&&Input.GetKey(KeyCode.PageDown)?1:0);
+                Zoom(Input.mouseScrollDelta.y+keyZoom*Time.unscaledDeltaTime*10);
             }
             var focus = Target.Position + Vector3.up * (Target.Vehicle?Mathf.Max(1.25f,Target.Vehicle.Dimensions.y*.6f):1.5f);
             // Shift the aim pivot ahead of the hero so the crosshair leads the view instead of sitting on the character's head.
@@ -118,7 +123,7 @@ namespace SunsetState
             if(game.InInterior)desired=3.5f;
             if(Target.Vehicle)desired=Mathf.Max(desired,Target.Vehicle.Dimensions.z*.8f+3);
             foreach(var hit in Physics.SphereCastAll(focus,.25f,direction,desired,~(1<<2),QueryTriggerInteraction.Ignore))
-                if(!Target.Vehicle || !hit.transform.IsChildOf(Target.Vehicle.transform))desired=Mathf.Min(desired,Mathf.Max(1.5f,hit.distance-.25f));
+                if(!hit.transform.IsChildOf(Target.transform) && (!Target.Vehicle || !hit.transform.IsChildOf(Target.Vehicle.transform)))desired=Mathf.Min(desired,Mathf.Max(.4f,hit.distance-.25f));
             var position=focus+direction*desired;
             transform.position=Vector3.Distance(transform.position,position)>35?position:Vector3.Lerp(transform.position,position,1-Mathf.Exp(-Time.unscaledDeltaTime*12));
             transform.LookAt(focus);

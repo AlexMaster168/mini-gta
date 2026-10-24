@@ -60,7 +60,7 @@ namespace SunsetState
         float AccessorySum(System.Func<RoleAccessory,float> selector){float result=0;for(int i=0;i<3;i++)result+=selector(Accessories[AccessoryAt(i)]);return result;}
         public float RunMultiplier=>Accessories[AccessoryAt(0)].Run*Accessories[AccessoryAt(1)].Run*Accessories[AccessoryAt(2)].Run;
         public bool CJRun=>AccessoryAt(2)==6;
-        public float AccuracyMultiplier=>Accessories[AccessoryAt(0)].Accuracy*Accessories[AccessoryAt(1)].Accuracy;
+        public float AccuracyMultiplier=>Accessories[AccessoryAt(0)].Accuracy*Accessories[AccessoryAt(1)].Accuracy*ShootingSkillAccuracy;
         public float HealingBonus=>AccessorySum(a=>a.Healing);
         public int AccessoryArmorBonus=>(int)AccessorySum(a=>a.Armor);
         public float AccessoryProtection=>Mathf.Min(.2f,AccessorySum(a=>a.Protection));

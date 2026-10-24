@@ -165,6 +165,7 @@ namespace SunsetState
             BuildAirport(root);
             BuildPalms(root);
             EnemyOutpost.Build(game,root);
+            ShootingRanges.Build(root);
             PatrolDrone.Spawn(Places[1].Position+Vector3.up*20,1);PatrolDrone.Spawn(Places[2].Position+Vector3.up*24,2);PatrolDrone.Spawn(StateBuilder.EastPort+Vector3.up*22,2);
             var sun = new GameObject("Sun").AddComponent<Light>(); sun.type=LightType.Directional;
             sun.transform.rotation=Quaternion.Euler(48,-35,0); sun.intensity=1.15f; sun.shadows=LightShadows.Soft; game.Sun=sun;

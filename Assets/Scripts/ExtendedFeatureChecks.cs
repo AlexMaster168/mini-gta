@@ -70,7 +70,7 @@ namespace SunsetState
             }
             var bulletCar=WorldBuilder.SpawnCar(this,new Vector3(4220,2,-1800),"Bullet damage regression",Color.gray,false,0);HostileAgent.AttachToPatrol(this,bulletCar);
             Player.Teleport(new Vector3(4220,2,-1812));var aimCamera=Camera.main;var aimFollow=aimCamera.GetComponent<FollowCamera>();aimFollow.enabled=false;yield return new WaitForFixedUpdate();aimCamera.transform.position=Player.Position+new Vector3(0,1.3f,-4);aimCamera.transform.LookAt(bulletCar.transform.position+Vector3.up*1.05f);
-            try{WeaponIndex=4;ServiceSelected=false;nextShot=0;magazines[4]=30;Fire();Require(bulletCar.Durability<100,"Shooting a patrol vehicle must damage vehicle, not only its occupant");bulletCar.Durability=10;}
+            try{WeaponIndex=4;ServiceSelected=false;nextShot=0;magazines[4]=30;Fire();Require(bulletCar.Durability<bulletCar.MaxDurability,"Shooting a patrol vehicle must damage vehicle, not only its occupant");bulletCar.Durability=10;}
             catch(Exception exception){Debug.LogError("SUNSET_SMOKE_FAILED "+exception);result(false);}
             yield return null;
             try{Require(bulletCar.GetComponent<VehicleDestruction>().Smoking && bulletCar.GetComponent<VehicleDestruction>().Burning,"Critically damaged vehicle must smoke and burn before explosion");}

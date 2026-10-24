@@ -37,7 +37,7 @@ namespace SunsetState
         {
             if(!other || other==car || relativeSpeed<3)return;
             float massRatio=Mathf.Clamp(car.Body.mass/Mathf.Max(1,other.Body.mass),.4f,4);
-            other.Durability=Mathf.Max(0,other.Durability-(relativeSpeed-3)*3*massRatio);
+            other.Durability=Mathf.Max(0,other.Durability-(relativeSpeed-3)*1.5f*massRatio);
             if(other.Durability<=0){other.Traffic=false;other.AIControls=null;var unit=other.GetComponent<HostileAgent>();if(unit)unit.TakeDamage(1000);}
         }
     }

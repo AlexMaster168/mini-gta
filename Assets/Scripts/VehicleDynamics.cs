@@ -49,14 +49,14 @@ namespace SunsetState
             bool bike=(Kind==VehicleKind.Motorcycle || Kind==VehicleKind.Bicycle),heavy=Kind==VehicleKind.Truck||Kind==VehicleKind.Bus,tank=Kind==VehicleKind.Tank;
             float speed=Vector3.Dot(Body.linearVelocity,transform.forward),absolute=Mathf.Abs(speed);
             float max=Kind==VehicleKind.Bicycle?12:tank?28:Kind==VehicleKind.Supercar?78:Kind==VehicleKind.Electric?62:Kind==VehicleKind.Sport?66:bike?55:heavy?30:Kind==VehicleKind.SUV?43:48;
-            if(Durability<25)max*=.4f;
+            if(HealthFraction<.15f)max*=.5f;
             bool reversing=throttle*speed < -1;
             float torque=(Kind==VehicleKind.Bicycle?160:tank?9000:Kind==VehicleKind.Supercar?2300:Kind==VehicleKind.Electric?2400:Kind==VehicleKind.Sport?1800:bike?550:heavy?4300:Kind==VehicleKind.SUV?1400:1100)*smoothThrottle;
             if(absolute>max || reversing || handbrake)torque=0;
             if(throttle<0 && speed<0 && absolute>12)torque=0;
             torque*=Mathf.Lerp(1,.25f,Mathf.InverseLerp(max*.65f,max,absolute));
             float wheelbase=Mathf.Abs(Wheels[0].transform.localPosition.z-Wheels[Wheels.Length-1].transform.localPosition.z);
-            float steeringLimit=Mathf.Clamp(Mathf.Atan(wheelbase*(tank?5:heavy?7:12)/(absolute*absolute+15))*Mathf.Rad2Deg,2.5f,tank?26f:heavy?32f:36f);
+            float steeringLimit=Mathf.Lerp(tank?26:heavy?32:36,tank?8:heavy?7:10,Mathf.InverseLerp(3,55,absolute));
             float angle=smoothSteer*steeringLimit;
             skid=0;
             for(int i=0;i<Wheels.Length;i++)
@@ -73,6 +73,12 @@ namespace SunsetState
             if(!bike){AntiRoll(Wheels[0],Wheels[1],tank?18000:heavy?14000:7500);AntiRoll(Wheels[2],Wheels[3],tank?16000:heavy?13000:6500);}
             int grounded=0;foreach(var wheel in Wheels)if(wheel.isGrounded)grounded++;
             if(grounded>=2)Body.AddForce(Vector3.down*absolute*absolute*3,ForceMode.Force);
+            if(grounded>=2 && absolute>8 && !handbrake)
+            {
+                float desiredYaw=Mathf.Clamp(speed/Mathf.Max(1.2f,wheelbase)*Mathf.Tan(angle*Mathf.Deg2Rad),-Mathf.Min(.7f,12/absolute),Mathf.Min(.7f,12/absolute));
+                Vector3 angular=Body.angularVelocity;angular.y=Mathf.MoveTowards(angular.y,desiredYaw,dt*2);Body.angularVelocity=angular;
+                Vector3 lateral=transform.right*Vector3.Dot(Body.linearVelocity,transform.right);Body.AddForce(-lateral*Mathf.Lerp(1.5f,3,Mathf.InverseLerp(10,50,absolute)),ForceMode.Acceleration);
+            }
             if(absolute>1)Body.AddForce(-Body.linearVelocity*absolute*(heavy?1.8f:.42f),ForceMode.Force);
             Gear=speed<-.4f?-1:Mathf.Clamp(1+Mathf.FloorToInt(Speed/(heavy?23:38)),1,6);
             float targetRpm=900+(Speed%(heavy?23:38))/(heavy?23:38)*5500+Mathf.Abs(throttle)*700;

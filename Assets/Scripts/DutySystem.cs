@@ -134,7 +134,7 @@ namespace SunsetState
                     Call.Code="10-55";Call.Title="Пьяный водитель";Call.Description="Красный автомобиль, хаотичное движение";
                     Call.Reward=600;
                     var runner=WorldBuilder.SpawnCar(this,point,"10-55 пьяный водитель",new Color(.85f,.14f,.14f),false,Random.Range(0f,359f));
-                    runner.Traffic=false;runner.Durability=45;Call.Runner=runner;
+                    runner.Traffic=false;runner.Durability=runner.MaxDurability*.45f;Call.Runner=runner;
                     Notify("Рация: 10-55! Пьяный водитель. Догони и выдави на обочину (N — мегафон).");
                 }
                 else if(kind==2)
@@ -358,7 +358,7 @@ namespace SunsetState
         {
             var at=DutyPoint();
             raidBus=WorldBuilder.SpawnCar(this,at+new Vector3(0,1,-4),"Конвойный фургон",new Color(.3f,.45f,.75f),false,Random.Range(0f,359f));
-            raidBus.Traffic=false;raidBus.Durability=Mathf.Max(raidBus.Durability,70);
+            raidBus.Traffic=false;raidBus.Durability=Mathf.Max(raidBus.Durability,raidBus.MaxDurability*.7f);
             raidGuards.Clear();
             raidGuards.Add(HostileAgent.Spawn(this,at+new Vector3(-5,1,7),"Охранник конвоя",false));
             raidGuards.Add(HostileAgent.Spawn(this,at+new Vector3(5,1,7),"Охранник конвоя",false));
