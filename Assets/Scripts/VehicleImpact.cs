@@ -8,7 +8,7 @@ namespace SunsetState
         void Awake(){car=GetComponent<VehicleMotor>();}
         void FixedUpdate()
         {
-            var game=GameRoot.Instance;if(!game || !game.Playing || game.Panel!="" || !car.Body || car.Speed<10)return;
+            var game=GameRoot.Instance;if(!game || !game.Playing || game.Panel!="" || car.SimulationDormant || !car.Body || car.Speed<10)return;
             Vector3 delta=car.Body.linearVelocity*Time.fixedDeltaTime;
             Bounds body=new Bounds(car.transform.position+Vector3.up*.8f,new Vector3(car.Dimensions.x,1.8f,car.Dimensions.z));
             bool first=true;foreach(var shape in car.GetComponentsInChildren<BoxCollider>())if(shape.enabled && shape.attachedRigidbody==car.Body){if(first){body=shape.bounds;first=false;}else body.Encapsulate(shape.bounds);}
@@ -24,6 +24,7 @@ namespace SunsetState
         public static bool ApplyPersonHit(GameObject person,float speed,float mass,bool responsible)
         {
             if(!person || speed<2.5f)return false;
+            var budget=person.GetComponent<AmbientActorBudget>();if(budget)budget.Wake();
             var enemy=person.GetComponent<HostileAgent>();var pedestrian=person.GetComponent<Pedestrian>();var staff=person.GetComponent<BaseNPC>();var contact=person.GetComponent<NeutralActor>();
             float damage=(speed-1)*6*Mathf.Clamp(Mathf.Sqrt(mass/1400f),.45f,2);
             if(enemy){if(enemy.Neutralized || enemy.VehicleUnit)return false;enemy.TakeDamage(damage);enemy.Stun(4);}
@@ -36,6 +37,7 @@ namespace SunsetState
         public void Ram(VehicleMotor other,float relativeSpeed)
         {
             if(!other || other==car || relativeSpeed<3)return;
+            other.WakeSimulation();
             float massRatio=Mathf.Clamp(car.Body.mass/Mathf.Max(1,other.Body.mass),.4f,4);
             other.Durability=Mathf.Max(0,other.Durability-(relativeSpeed-3)*1.5f*massRatio);
             if(other.Durability<=0){other.Traffic=false;other.AIControls=null;var unit=other.GetComponent<HostileAgent>();if(unit)unit.TakeDamage(1000);}

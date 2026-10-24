@@ -40,7 +40,7 @@ namespace SunsetState
         }
         void FixedUpdate()
         {
-            var game=GameRoot.Instance;if(!game || !game.Playing || game.Panel!="" || WaterBody.At(transform.position)!=null || car.OnWater || car.Flying && car.Driver || Time.time<nextCheck)return;
+            var game=GameRoot.Instance;if(!game || !game.Playing || game.Panel!="" || car.SimulationDormant || WaterBody.At(transform.position)!=null || car.OnWater || car.Flying && car.Driver || Time.time<nextCheck)return;
             float interval=car.Driver || Vector3.Distance(transform.position,game.Player.Position)<200?.4f:2;nextCheck=Time.time+interval;
             bool embedded=Embedded();blockedTime=embedded?blockedTime+interval:0;
             bool supported=car.Wheels==null; if(car.Wheels!=null)foreach(var wheel in car.Wheels)if(wheel.isGrounded){supported=true;break;}

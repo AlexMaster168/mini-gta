@@ -54,6 +54,7 @@ namespace SunsetState
         }
         public void Enter(VehicleMotor vehicle)
         {
+            vehicle.WakeSimulation();
             if(vehicle.Durability<=0){GameRoot.Instance.Notify("Транспорт уничтожен. Получи другой через H / G.");return;}
             if (vehicle.Driver) return;
             if (GameRoot.Instance.RoleIndex==13 && !GameRoot.Instance.Escaped) { GameRoot.Instance.Notify("Сначала нужно выбраться из тюрьмы."); return; }
@@ -91,7 +92,7 @@ namespace SunsetState
         float mouseIdle;VehicleMotor previousVehicle;
         public float Pitch=>pitch;
         public float Distance=>distance;
-        public void Look(float horizontal,float vertical){yaw+=horizontal*2.3f;pitch=Mathf.Clamp(pitch-vertical*1.7f,-75,80);}
+        public void Look(float horizontal,float vertical){float sensitivity=RuntimeSettings.Data.MouseSensitivity;yaw+=horizontal*2.3f*sensitivity;pitch=Mathf.Clamp(pitch-vertical*1.7f*sensitivity*(RuntimeSettings.Data.InvertY?-1:1),-75,80);}
         public void Zoom(float amount){distance=Mathf.Clamp(distance-amount,2,35);}
         void LateUpdate()
         {

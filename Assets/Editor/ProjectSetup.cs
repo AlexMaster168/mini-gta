@@ -15,6 +15,7 @@ namespace SunsetState.Editor
             EditorSceneManager.SaveScene(scene,"Assets/Scenes/SanOro.unity");
             EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene("Assets/Scenes/SanOro.unity",true)};
             PlayerSettings.companyName="Sunset State";PlayerSettings.productName="Sunset State";
+            PlayerSettings.bundleVersion="0.3.3";
             PlayerSettings.defaultScreenWidth=1280;PlayerSettings.defaultScreenHeight=720;
             PlayerSettings.fullScreenMode=FullScreenMode.FullScreenWindow;
             PlayerSettings.runInBackground=false;PlayerSettings.colorSpace=ColorSpace.Gamma;
@@ -38,7 +39,9 @@ namespace SunsetState.Editor
             Prepare();Directory.CreateDirectory("Builds/Windows");
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Scenes/SanOro.unity"},locationPathName="Builds/Windows/SunsetState.exe",target=BuildTarget.StandaloneWindows64,options=BuildOptions.None});
             if(report.summary.result!=UnityEditor.Build.Reporting.BuildResult.Succeeded)throw new System.Exception("Windows build failed: "+report.summary.result);
+            File.WriteAllText("Builds/Windows/build-info.json",JsonUtility.ToJson(new BuildInfo{version=PlayerSettings.bundleVersion,unity=Application.unityVersion,builtUtc=System.DateTime.UtcNow.ToString("O"),channel="preview"},true));
             Debug.Log("SUNSET_BUILD_OK");
         }
+        [System.Serializable]sealed class BuildInfo{public string version,unity,builtUtc,channel;}
     }
 }

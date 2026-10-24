@@ -16,6 +16,7 @@ namespace SunsetState
         void Update()
         {
             var game=GameRoot.Instance;if(!game || !game.Playing)return;
+            if(car.SimulationDormant){tires.Pause();foreach(var lamp in headlights)lamp.enabled=false;return;}
             if(car.Driver && Input.GetKeyDown(KeyCode.L))lightsOn=!lightsOn;
             foreach(var lamp in headlights)lamp.enabled=lightsOn || (car.Driver || car.Traffic) && (game.Hour<6 || game.Hour>19);
             bool skid=game.Panel=="" && car.Speed>12 && car.Skid>.22f;

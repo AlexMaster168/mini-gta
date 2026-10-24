@@ -8,8 +8,8 @@ if not exist "%CD%\Builds\Windows\SunsetState_Data\globalgamemanagers" goto miss
 if "%~1"=="--check" goto ready
 if "%~1"=="--smoke" goto smoke
 if "%~1"=="--windowed" goto windowed
-echo Starting Sunset State in fullscreen. F11 switches window mode.
-start "Sunset State" /d "%CD%\Builds\Windows" "%GAME_EXE%" -screen-fullscreen 1 -logFile "%CD%\game.log"
+echo Starting Sunset State. F11 switches window mode.
+start "Sunset State" /d "%CD%\Builds\Windows" "%GAME_EXE%" -logFile "%CD%\game.log"
 exit /b 0
 :windowed
 start "Sunset State" /d "%CD%\Builds\Windows" "%GAME_EXE%" -screen-fullscreen 0 -screen-width 1280 -screen-height 720 -logFile "%CD%\game.log"

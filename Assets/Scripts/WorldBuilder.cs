@@ -150,7 +150,7 @@ namespace SunsetState
                 npc.transform.position = new Vector3(road*200+17,.3f,along);
                 var capsule=npc.AddComponent<CapsuleCollider>();capsule.height=1.8f;capsule.radius=.3f;capsule.center=Vector3.up*.9f;
                 CharacterModels.Create(npc.transform,i%3==0?10:0,Color.HSVToRGB(Random.value,.4f,.7f),i%2==0,i%3);
-                npc.AddComponent<Pedestrian>();
+                npc.AddComponent<Pedestrian>();npc.AddComponent<AmbientActorBudget>();
             }
             for (int i = 0; i < 22; i++)
             {

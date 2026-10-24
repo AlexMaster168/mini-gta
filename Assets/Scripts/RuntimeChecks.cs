@@ -8,10 +8,12 @@ namespace SunsetState
     {
         IEnumerator Start()
         {
+            yield return InitializeGame();
             if(PreviewMode){yield return CaptureGamePreviews();Application.Quit(0);yield break;}
             if(!SmokeMode)yield break;
             yield return null;
             bool success=true;
+            try{CheckProductionServices();}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
             yield return CheckStructureAndMissions(value=>success &= value);
             if(!success){Application.Quit(1);yield break;}
             SelectRole(0);StartGame(false);Panel="";
@@ -23,6 +25,7 @@ namespace SunsetState
             yield return new WaitForSecondsRealtime(.4f);
             try{Debug.Log("FLIGHT_CHECK initial="+initial+" now="+helicopter.transform.position.y+" body="+helicopter.Body.position.y+" driver="+(bool)helicopter.Driver);Require(!helicopter.Body.useGravity && helicopter.transform.position.y>initial+.4f,"Helicopter must lift and hover with pilot");}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
             Player.Teleport(new Vector3(0,2,0));
+            try{CheckTransportDurability();}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
             yield return CheckPhysicsRecovery(value=>success &= value);
             yield return CheckExtendedFeatures(value=>success &= value);
             yield return CheckNewSystems(value=>success &= value);
@@ -32,6 +35,7 @@ namespace SunsetState
             try{CheckDifficulty();CheckRadioLibrary();}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
             yield return CheckCameraVehicles(value=>success &= value);
             try{CheckShootingRanges();}catch(Exception e){Debug.LogError("SUNSET_SMOKE_FAILED "+e);success=false;}
+            yield return CheckWorldSimulation(value=>success &= value);
             yield return CheckDriving(value=>success &= value);
             Debug.Log(success?"SUNSET_SMOKE_OK: 18 roles, 180 jobs, 900 story chapters with branches, fleet permissions, prison escape, save, combat, services, helicopter, suspension, acceleration, braking, reverse, steering, handbrake":"SUNSET_SMOKE_FAILED");
             Application.Quit(success?0:1);

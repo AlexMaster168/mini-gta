@@ -12,7 +12,7 @@ namespace SunsetState
         public Vector2? AIControls;
         public VehicleKind Kind;
         public float Durability=100;
-        public float MaxDurability=>Kind==VehicleKind.Tank?1200:Kind==VehicleKind.Truck||Kind==VehicleKind.Bus?450:Kind==VehicleKind.Motorcycle||Kind==VehicleKind.Bicycle?180:300;
+        public float MaxDurability=>Kind==VehicleKind.Tank?2400:Kind==VehicleKind.Truck||Kind==VehicleKind.Bus?900:Kind==VehicleKind.Motorcycle||Kind==VehicleKind.Bicycle?360:600;
         public float HealthFraction=>Mathf.Clamp01(Durability/MaxDurability);
         public Vector3 Dimensions;
         public Transform Rotor;
@@ -58,6 +58,7 @@ namespace SunsetState
         {
             var game = GameRoot.Instance;
             if (!game || !game.Playing || game.Panel != "") return;
+            RefreshSimulationBudget();if(SimulationDormant)return;
             if(GetComponent<VehicleWaterState>().Flooded){if(Wheels!=null)foreach(var wheel in Wheels){wheel.motorTorque=0;wheel.brakeTorque=0;}Body.useGravity=true;return;}
             if(Durability<=0){if(Wheels!=null)foreach(var wheel in Wheels){wheel.motorTorque=0;wheel.brakeTorque=10000;}return;}
             float throttle = 0, steer = 0;

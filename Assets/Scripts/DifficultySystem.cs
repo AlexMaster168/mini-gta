@@ -52,15 +52,16 @@ namespace SunsetState
         }
         void CheckRadioLibrary()
         {
-            var radio=StateRadio.Instance;Require(radio&&radio.TrackCount==9,"Radio must contain nine tracks");
-            var unique=new System.Collections.Generic.HashSet<AudioClip>();
-            for(int i=0;i<radio.TrackCount;i++){radio.PhoneRadio(i);var clip=radio.SelectedClip;Require(clip&&clip.length>10&&clip.channels>0&&clip.frequency>=22050&&unique.Add(clip),"Every radio choice must select a different valid full track: "+i);}
+            var radio=StateRadio.Instance;Require(radio&&radio.TrackCount==21&&StateRadio.TrackNames.Length==21,"Radio must contain 21 labelled tracks");
+            float duration=0;var unique=new System.Collections.Generic.HashSet<AudioClip>();
+            for(int i=0;i<radio.TrackCount;i++){radio.PhoneRadio(i);var clip=radio.SelectedClip;if(clip)duration+=clip.length;Require(clip&&clip.length>10&&clip.channels>0&&clip.frequency>=22050&&unique.Add(clip),"Every radio choice must select a different valid full track: "+i);}
             radio.NextTrack();var first=radio.SelectedClip;radio.PhoneRadio(0);Require(radio.SelectedClip==first,"Playlist must wrap to its first track");
-            radio.PhoneRadio(999);var last=radio.SelectedClip;radio.PhoneRadio(8);Require(last==radio.SelectedClip,"Track selection must clamp invalid indices");radio.PhoneRadio(0);
+            radio.PhoneRadio(999);var last=radio.SelectedClip;radio.PhoneRadio(radio.TrackCount-1);Require(last==radio.SelectedClip,"Track selection must clamp invalid indices");radio.PhoneRadio(0);
+            Debug.Log("SUNSET_RADIO_DURATION_SECONDS "+duration.ToString("0"));
             float originalEngine=VehicleAudio.EngineVolume;VehicleAudio.EngineVolume=.3f;
             foreach(float volume in new[]{0f,.02f,.24f,.6f})foreach(bool driven in new[]{false,true})Require(VehicleAudio.MixedEngineVolume(driven,true,volume)<=volume*.25f+.00001f,"Music must cap engine gain even with maximum engine setting");
             Require(Mathf.Approximately(VehicleAudio.MixedEngineVolume(true,false,.24f),.3f),"Radio off must restore chosen engine gain");VehicleAudio.EngineVolume=originalEngine;
-            Debug.Log("SUNSET_NINE_RADIO_TRACKS_VALID_SELECTION_PLAYLIST_WRAP_ENGINE_DUCKING_OK");
+            Debug.Log("SUNSET_21_RADIO_TRACKS_VALID_SELECTION_PLAYLIST_WRAP_ENGINE_DUCKING_OK");
         }
     }
 }

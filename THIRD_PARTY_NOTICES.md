@@ -50,3 +50,20 @@ Unity glTFast 6.19.0, Unity Technologies, Apache-2.0. Package license and notice
 ## User-supplied map reference
 
 `References/SanAndreas-StreetMap.png` is the reference image downloaded from the exact GTA Wiki URL supplied by the user. GTA / San Andreas artwork belongs to its respective rights holders. This image is outside Assets and is not bundled into the game. It does not contain 3D map geometry. The playable towns currently use original procedural geometry.
+
+## Radio expansion — 12 additional tracks
+
+All tracks below are used under CC0 1.0. Files are included without editing; alternative formats on each source page were not included. License: https://creativecommons.org/publicdomain/zero/1.0/. Download URLs and file SHA-256 values are recorded in Assets/Resources/Audio/Radio/RadioCredits.json.
+
+- **Funky House**, by **Of Far Different Nature**. Source: https://opengameart.org/content/funky-house
+- **Synthwave Type**, by **G_P**. Source: https://opengameart.org/content/synthwavetype
+- **Nova**, by **SpringySpringo**. Source: https://opengameart.org/content/nova
+- **Synthwave House Loop**, by **Fupi**. Source: https://opengameart.org/content/synthwave-house-loop
+- **Space Adventure**, by **MintoDog**. Source: https://opengameart.org/content/space-adventure
+- **Lofi Hip Hop Loop**, by **omfgdude**. Source: https://opengameart.org/content/lofi-hip-hop-loop
+- **Chase**, by **Adiutorium**. Source: https://opengameart.org/content/chase-2
+- **Chase!**, by **Ted Kerr (Wolfgang_)**. Source: https://opengameart.org/content/chase
+- **Funky Hip Hop Lofi Jam**, by **omfgdude**. Source: https://opengameart.org/content/funky-hip-hop-lofi-jam
+- **Space City**, by **MintoDog**. Source: https://opengameart.org/content/space-city
+- **Trance City**, by **MintoDog**. Source: https://opengameart.org/content/trance-city
+- **Urban Theme**, by **MintoDog**. Source: https://opengameart.org/content/urban-theme

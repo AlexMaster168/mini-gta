@@ -21,7 +21,7 @@ namespace SunsetState
         }
         public void BulletHit(float damage,Vector3 point)
         {
-            if(Destroyed)return;car.Durability=Mathf.Max(0,car.Durability-damage*(car.Kind==VehicleKind.Tank?.16f:.35f));
+            if(Destroyed)return;car.WakeSimulation();car.Durability=Mathf.Max(0,car.Durability-damage*(car.Kind==VehicleKind.Tank?.16f:.35f));
             var spark=GameObject.CreatePrimitive(PrimitiveType.Sphere);spark.name="Bullet impact";spark.GetComponent<Collider>().enabled=false;Destroy(spark.GetComponent<Collider>());spark.transform.position=point;spark.transform.localScale=Vector3.one*.12f;spark.GetComponent<Renderer>().sharedMaterial=WorldBuilder.Mat(new Color(1,.65f,.1f));Destroy(spark,.09f);
         }
         public void Explode()
@@ -40,7 +40,7 @@ namespace SunsetState
             var game=GameRoot.Instance;if(!game)return;
             foreach(var enemy in game.Enemies)if(enemy && !enemy.Neutralized && (!owner || enemy.gameObject!=owner.gameObject)){float distance=Vector3.Distance(center,enemy.transform.position+Vector3.up*.6f);if(distance<radius)enemy.TakeDamage(damage*(1-distance/(radius+1)));}
             foreach(var vehicle in game.Cars)if(vehicle && vehicle!=owner && vehicle.Durability>0)
-            {float distance=Vector3.Distance(center,vehicle.transform.position+Vector3.up);if(distance<radius){vehicle.Durability=Mathf.Max(0,vehicle.Durability-damage*(1-distance/(radius+1)));vehicle.Body.AddExplosionForce(30000,center,radius,1.5f);}}
+            {float distance=Vector3.Distance(center,vehicle.transform.position+Vector3.up);if(distance<radius){vehicle.WakeSimulation();vehicle.Durability=Mathf.Max(0,vehicle.Durability-damage*(1-distance/(radius+1)));vehicle.Body.AddExplosionForce(30000,center,radius,1.5f);}}
             foreach(var person in Object.FindObjectsByType<Pedestrian>(FindObjectsSortMode.None)){float d=Vector3.Distance(person.transform.position,center);if(d<radius)person.TakeVehicleDamage(damage*(1-d/(radius+1)));}
             foreach(var staff in Object.FindObjectsByType<BaseNPC>(FindObjectsSortMode.None)){float d=Vector3.Distance(staff.transform.position,center);if(d<radius)staff.TakeVehicleDamage(damage*(1-d/(radius+1)));}
             foreach(var road in Object.FindObjectsByType<RoadServiceObject>(FindObjectsSortMode.None))if(Vector3.Distance(road.transform.position,center)<radius+3)road.SetBroken(true);

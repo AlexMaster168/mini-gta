@@ -33,8 +33,8 @@ namespace SunsetState
     public sealed class StateRadio:MonoBehaviour
     {
         public static StateRadio Instance;
-        public static readonly string[] TrackNames={"Midnight Drive · congusbongus","Police Loop · obscure music","Doomed · Alexander Ehlers","Flags · Alexander Ehlers","Great Mission · Alexander Ehlers","Spacetime · Alexander Ehlers","Twists · Alexander Ehlers","Waking the Devil · Alexander Ehlers","Warped · Alexander Ehlers"};
-        static readonly string[] TrackPaths={"Audio/MidnightDrive","Audio/PoliceLoop","Audio/Radio/Doomed","Audio/Radio/Flags","Audio/Radio/Greatmission","Audio/Radio/Spacetime","Audio/Radio/Twists","Audio/Radio/Wakingthedevil","Audio/Radio/Warped"};
+        public static readonly string[] TrackNames={"Midnight Drive · congusbongus","Police Loop · obscure music","Doomed · Alexander Ehlers","Flags · Alexander Ehlers","Great Mission · Alexander Ehlers","Spacetime · Alexander Ehlers","Twists · Alexander Ehlers","Waking the Devil · Alexander Ehlers","Warped · Alexander Ehlers","Funky House · Of Far Different Nature","Synthwave Type · G_P","Nova · SpringySpringo","Synthwave House Loop · Fupi","Space Adventure · MintoDog","Lofi Hip Hop Loop · omfgdude","Chase · Adiutorium","Chase! · Ted Kerr (Wolfgang_)","Funky Hip Hop Lofi Jam · omfgdude","Space City · MintoDog","Trance City · MintoDog","Urban Theme · MintoDog"};
+        static readonly string[] TrackPaths={"Audio/MidnightDrive","Audio/PoliceLoop","Audio/Radio/Doomed","Audio/Radio/Flags","Audio/Radio/Greatmission","Audio/Radio/Spacetime","Audio/Radio/Twists","Audio/Radio/Wakingthedevil","Audio/Radio/Warped","Audio/Radio/FunkyHouse","Audio/Radio/SynthType","Audio/Radio/Nova","Audio/Radio/SynthHouse","Audio/Radio/SpaceAdventure","Audio/Radio/LofiLoop","Audio/Radio/NeonChase","Audio/Radio/ChaseTheme","Audio/Radio/FunkyLofiJam","Audio/Radio/SpaceCity","Audio/Radio/TranceCity","Audio/Radio/UrbanTheme"};
         public int TrackCount=>tracks.Length;
         public AudioClip SelectedClip=>radio.clip;
         public void PhoneRadio(int index){phoneListening=true;if(index<0)enabledRadio=!enabledRadio;else{enabledRadio=true;SelectTrack(index);}}

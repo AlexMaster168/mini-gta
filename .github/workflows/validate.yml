@@ -1,0 +1,17 @@
+name: Validate project sources
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  source-validation:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Unity metadata, dependencies and documentation
+        shell: pwsh
+        run: ./scripts/Validate-Project.ps1
+      - name: Check release integrity rejection cases
+        shell: pwsh
+        run: ./scripts/Test-ReleaseManifest.ps1

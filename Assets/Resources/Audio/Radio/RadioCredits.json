@@ -1,0 +1,134 @@
+[
+  {
+    "title": "Funky House",
+    "artist": "Of Far Different Nature",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/funky-house",
+    "download": "https://opengameart.org/sites/default/files/Of%20Far%20Different%20Nature%20-%20Funky%20House%20%28CC0%29_0.mp3",
+    "resource": "Audio/Radio/FunkyHouse",
+    "sha256": "2DAC2B9EF09A6EC7C3A8FBDA54F854AA976DC714F335DD329CA14631EF347967",
+    "bytes": 2753263
+  },
+  {
+    "title": "Synthwave Type",
+    "artist": "G_P",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/synthwavetype",
+    "download": "https://opengameart.org/sites/default/files/synth_type_1.mp3",
+    "resource": "Audio/Radio/SynthType",
+    "sha256": "DF87E826F113F3FC425B24FC85361E1F5866045EB44F06096EA64B792A362389",
+    "bytes": 2263307
+  },
+  {
+    "title": "Nova",
+    "artist": "SpringySpringo",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/nova",
+    "download": "https://opengameart.org/sites/default/files/nova_1.mp3",
+    "resource": "Audio/Radio/Nova",
+    "sha256": "E099911CA7E1D4A1579AAA2841190B5EA1FAE2CE0A7B6AE9C3FAC10B67C526BC",
+    "bytes": 2927848
+  },
+  {
+    "title": "Synthwave House Loop",
+    "artist": "Fupi",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/synthwave-house-loop",
+    "download": "https://opengameart.org/sites/default/files/synthwavehouse_0.ogg",
+    "resource": "Audio/Radio/SynthHouse",
+    "sha256": "AC6A7AF314F55DE46E28C8068249EBB26C471E67D1A4745EE04EB0C0C9BACF0B",
+    "bytes": 1230899
+  },
+  {
+    "title": "Space Adventure",
+    "artist": "MintoDog",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/space-adventure",
+    "download": "https://opengameart.org/sites/default/files/space_adventure_bpm140_0.ogg",
+    "resource": "Audio/Radio/SpaceAdventure",
+    "sha256": "30E31EE6DA7A24BEA35BF22D6C125F8100F803FCA20A3F59637E52A4FD764CE3",
+    "bytes": 4053301
+  },
+  {
+    "title": "Lofi Hip Hop Loop",
+    "artist": "omfgdude",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/lofi-hip-hop-loop",
+    "download": "https://opengameart.org/sites/default/files/LofiLoop_2.ogg",
+    "resource": "Audio/Radio/LofiLoop",
+    "sha256": "E57BA821D4DB8D66783CA984A2778EC68D1439E862239EC36407344EF3BD1EAB",
+    "bytes": 1430666
+  },
+  {
+    "title": "Chase",
+    "artist": "Adiutorium",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/chase-2",
+    "download": "https://opengameart.org/sites/default/files/chase.mp3",
+    "resource": "Audio/Radio/NeonChase",
+    "sha256": "F033D26BB2BB2E6B3FB7DB60E491B4DBEA0C32F3AC92E8C9B18718759410A601",
+    "bytes": 10477472
+  },
+  {
+    "title": "Chase!",
+    "artist": "Ted Kerr (Wolfgang_)",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/chase",
+    "download": "https://opengameart.org/sites/default/files/Chase.ogg",
+    "resource": "Audio/Radio/ChaseTheme",
+    "sha256": "4E52018A6294A0D62A7F1AD68D8B36A85736D1CDC04B82FA694218B4BAA98DCF",
+    "bytes": 3528571
+  },
+  {
+    "title": "Funky Hip Hop Lofi Jam",
+    "artist": "omfgdude",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/funky-hip-hop-lofi-jam",
+    "download": "https://opengameart.org/sites/default/files/CVP701Jam_0.ogg",
+    "resource": "Audio/Radio/FunkyLofiJam",
+    "sha256": "7C213D1C6FE01BC6B67D6C1124C6CD88AFAE7149EE8EC966C7F55F517EB22AF9",
+    "bytes": 10077689
+  },
+  {
+    "title": "Space City",
+    "artist": "MintoDog",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/space-city",
+    "download": "https://opengameart.org/sites/default/files/space_city_bpm115_0.ogg",
+    "resource": "Audio/Radio/SpaceCity",
+    "sha256": "6ECB8408CD84B1031425E8F1B941D7A89AB8A850CEA2833AC2E005F76544D7A7",
+    "bytes": 3712951
+  },
+  {
+    "title": "Trance City",
+    "artist": "MintoDog",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/trance-city",
+    "download": "https://opengameart.org/sites/default/files/trance_city_bpm130_0.ogg",
+    "resource": "Audio/Radio/TranceCity",
+    "sha256": "82FB7EC614E08EF183512025990C76F4825EFCE95AA2C4411F2E8331EA147B7D",
+    "bytes": 3789027
+  },
+  {
+    "title": "Urban Theme",
+    "artist": "MintoDog",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://opengameart.org/content/urban-theme",
+    "download": "https://opengameart.org/sites/default/files/urban_theme_bpm115_0.ogg",
+    "resource": "Audio/Radio/UrbanTheme",
+    "sha256": "564FE32A9421A771E10DE249A38362789E7A116140AD8D74D8D9EBCB398D99CC",
+    "bytes": 2921293
+  }
+]

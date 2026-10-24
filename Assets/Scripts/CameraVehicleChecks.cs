@@ -14,9 +14,9 @@ namespace SunsetState
                 Require(CameraClearSmoke.Visibility(Vector3.forward,Vector3.zero,Vector3.forward*10)==0,"Smoke next to camera must disappear");Require(CameraClearSmoke.Visibility(Vector3.forward*7,Vector3.zero,Vector3.forward*10)<.1f,"Smoke between camera and player must fade");
                 SelectRole(0);Player.Teleport(new Vector3(3300,2,-1900));
                 var car=WorldBuilder.SpawnCar(this,new Vector3(3400,2,-1900),"Damage panels test",Color.gray,false,0);var other=WorldBuilder.SpawnCar(this,new Vector3(3450,2,-1900),"Intact panels test",Color.gray,false,0);
-                Require(car.MaxDurability==300&&car.Durability==300,"Ordinary car must start with 300 HP");
+                Require(car.MaxDurability==600&&car.Durability==600,"Ordinary car must start with 600 HP");
                 var intact=new HashSet<Mesh>();foreach(var filter in car.GetComponentsInChildren<MeshFilter>())intact.Add(filter.sharedMesh);
-                car.GetComponent<VehicleDestruction>().BulletHit(32,car.transform.position+Vector3.up);Require(car.Durability>280,"One rifle hit must not critically damage fresh car");
+                car.GetComponent<VehicleDestruction>().BulletHit(32,car.transform.position+Vector3.up);Require(car.Durability>580,"One rifle hit must not critically damage fresh car");
                 car.Durability=car.MaxDurability*.3f;var body=car.GetComponent<VehicleBodyDamage>();body.Refresh();bool changed=false;foreach(var filter in car.GetComponentsInChildren<MeshFilter>())if(!intact.Contains(filter.sharedMesh))changed=true;
                 Require(body.WindowsBroken&&body.MissingDoors==2&&changed,"Damage must remove glazing and cut two real door openings");
                 Require(!other.GetComponent<VehicleBodyDamage>().WindowsBroken&&other.GetComponent<VehicleBodyDamage>().MissingDoors==0,"Shared prefabs must stay intact on another vehicle");
@@ -44,7 +44,7 @@ namespace SunsetState
                 }
                 Cars.Remove(car);Destroy(car.gameObject);yield return null;
             }
-            Debug.Log("SUNSET_CAMERA_PITCH_KEY_ZOOM_SMOKE_CLEARANCE_300HP_DOORS_REPAIR_POLICE_FBI_MINIGUN_HIGH_SPEED_STEERING_OK");
+            Debug.Log("SUNSET_CAMERA_PITCH_KEY_ZOOM_SMOKE_CLEARANCE_600HP_DOORS_REPAIR_POLICE_FBI_MINIGUN_HIGH_SPEED_STEERING_OK");
         }
     }
 }
